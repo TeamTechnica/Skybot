@@ -2,8 +2,10 @@ from flask import Flask, request
 from pymessenger.bot import Bot
 import os
 
-ACCESS_TOKEN = os.getenv('ACCESS_TOKEN')
-VERIFY_TOKEN = os.getenv('VERIFY_TOKEN')
+#ACCESS_TOKEN = os.getenv('ACCESS_TOKEN')
+#VERIFY_TOKEN = os.getenv('VERIFY_TOKEN')
+ACCESS_TOKEN = os.environ['ACCESS_TOKEN']
+VERIFY_TOKEN = os.environ['VERIFY_TOKEN']
 
 app = Flask(__name__)
 @app.route('/', methods=['GET', 'POST'])
