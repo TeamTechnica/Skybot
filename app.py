@@ -35,9 +35,9 @@ def verify_fb_token(token_sent):
 	 """ token_sent: sent by facebook 
 	 description: 
 	 	verifies if it matches the verify token, or returns error """
-	if token_sent == VERIFY_TOKEN:
-		return request.args.get("hub.challenge")
-	return 'Invalid verification token'
+	 if token_sent == VERIFY_TOKEN:
+	 	return request.args.get("hub.challenge")
+	 return 'Invalid verification token'
 
 def get_message():
 	sample_responses = ["You are stunning!", "We're proud of you.", "Keep on being you!", "We're greatful to know you :)"]
