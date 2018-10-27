@@ -1,19 +1,26 @@
 from flask import Flask, request, redirect
 from twilio.twiml.messaging_response import MessagingResponse
+import random
 
 app = Flask(__name__)
 
 
+def get_flight_info():
+	return "" 
+
+def send_verify_email():
+	# change verify state to email_sent 
+	return "" 
+
 def exist_user(phone_number):
-	# DB call here
+	# if verify state is NONE, call send email function
 	return ""
 
 def new_user(phone_number):
-	# insert into db 
+	# insert into db -- verify state is set to NONE
 	# CODE HERE
 	resp = MessagingResponse()
 	resp.message("Welcome to Skybot! What's your UNI?")
-
 	return str(resp)
 
 def check_verification(phone_number):
