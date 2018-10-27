@@ -1,7 +1,7 @@
 from flask import Flask, request, redirect
 from twilio.twiml.messaging_response import MessagingResponse
 import random
-import sqlite3
+from database import * 
 import sendgrid
 
 import os
@@ -9,7 +9,7 @@ from sendgrid.helpers.mail import *
 
 
 app = Flask(__name__)
-# conn = sqlite3.connect('example.db')
+db.create_all()
 
 def receive_flight_info():
 	# if verify state is VERIFIED
@@ -49,13 +49,19 @@ def send_verify_email(email):
 
 	return "" 
 
-def exist_user(phone_number):
+def exist_user(phone_number, uni):
+	curr_user = db.session.query(User).filter_by(phone_number=phone_number).first()
+	
 	# if verify state is NONE, call send email function
+	if curr_user.verified == 'NONE':
+		send_verify_email(uni + "columbia.edu")
 	return ""
 
 def new_user(phone_number):
-	# insert into db -- verify state is set to NONE
-	# conn.execute(""" INSERT INTO XXXX (phone, "NONE"")
+	# create & insert new user into database
+	new_user = User(phone_number=phone_number)
+	db.session.add(new_user)
+
 	resp = MessagingResponse()
 	resp.message("Welcome to Skybot! What's your UNI?")
 	return str(resp)
@@ -71,12 +77,15 @@ def sms_reply():
 	pnumber = request.values.get('From', None)
 	
 	# checks db for existing user
-	# conn.execute(""" SELECT EXISTS( SELECT 1 FROM xxxx WHERE YYY = pnumber) """)
+	check_num = db.session.query(User).filter(User.phone_number == pnumber)
 
-	# depending on result, call exist or new user function
+	if db.session.query(q.exists()).scalar() == 1:
+		exist_user(pnumber)
+	else:
+		uni = request.values.get('Body', None)
+		new_user(pnumber, uni)
 
 	resp = MessagingResponse()
-	
 	resp.message("Welcome to Skybot")
 	
 	return str(resp)
