@@ -80,13 +80,12 @@ def sms_reply():
 
 	# checks db for existing user
 	check_num = session.query(User).filter(User.phone_number == pnumber)
-	"""
 	if db.session.query(q.exists()).scalar() == 1:
 		exist_user(pnumber)
 	else:
 		uni = request.values.get('Body', None)
 		new_user(pnumber, uni)
-	"""
+		
 	resp = MessagingResponse()
 	resp.message("We queried the database")
 	return str(resp)
