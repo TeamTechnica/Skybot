@@ -65,7 +65,6 @@ def new_user(phone_number):
 	# create & insert new user into database
 	new_user = User(phone_number=phone_number)
 	session.add(new_user)
-	session.commit()
 
 	# send confirmation message & ask for UNI
 	resp = MessagingResponse()
@@ -83,7 +82,7 @@ def sms_reply():
 
 	# checks db for existing user
 	check_num = session.query(User).filter(User.phone_number == pnumber)
-	if session.query(check_num.exists()).scalar() == 0:
+	if session.query(check_num.exists()).scalar() == 1: # THIS MUST BE SWITCHED TO 1
 		out_message = new_user(pnumber)
 	else:
 		uni = request.values.get('Body', None)
