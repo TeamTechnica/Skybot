@@ -4,9 +4,23 @@ import random
 
 app = Flask(__name__)
 
+def receive_flight_info():
+	# if verify state is VERIFIED
+	resp = MessagingResponse()
+	resp.message("""Thank you for the information! 
+		We'll notify you as soon as we have a match""")
+	return str(resp)
 
-def get_flight_info():
-	return "" 
+def verify():
+	# triggered when they send the correct verification code
+	resp = MessagingResponse()
+	resp.message("""Thank you for verifying your identity! Let's get 
+		started with your flight information. Please answer the following:
+		1. JFK/LGA/EWR
+		2. Date (MM/DD/YYYY)
+		3. Flight Time (XX:XX AM/PM) 
+		4. Maximum Number of Additional Passengers""")
+	return str(resp)
 
 def send_verify_email():
 	# change verify state to email_sent 
