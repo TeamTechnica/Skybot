@@ -34,7 +34,7 @@ def verify():
 
 def send_verify_email(email):
 
-	sg = sendgrid.SendGridAPIClient("SENDGRID_APIKEY") #API Key goes here
+	sg = sendgrid.SendGridAPIClient(os.getenv('SENDGRID_TOKEN')) #API Key goes here
 	
 	from_email = Email("CUSkyBot@gmail.com")
 	to_email = Email(str(email))
@@ -49,16 +49,17 @@ def send_verify_email(email):
 		resp = MessagingResponse()
 		resp.message("Please give me your email again, error in sending verfication code")
 		return str(resp)
-
-	return "" 
+	else:
+		resp = MessagingResponse()
+		resp.message("Check your email for a verification email!")
+		return str(resp)	 
 
 def exist_user(phone_number, uni):
 	curr_user = session.query(User).filter_by(phone_number=phone_number).first()
 	
 	# if verify state is NONE, call send email function
-	if curr_user.verified == 'NONE':
-		send_verify_email(uni + "@columbia.edu")
-	return ""
+	#if curr_user.verified == 'NONE':
+	send_verify_email(uni + "@columbia.edu")
 
 def new_user(phone_number):
 	# create & insert new user into database
@@ -86,9 +87,7 @@ def sms_reply():
 	else:
 		uni = request.values.get('Body', None)
 		exist_user(pnumber, uni)
-
-	resp = MessagingResponse()
-	resp.message("We queried the database")
+	
 	return str(out_message)
 
 
