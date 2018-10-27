@@ -75,7 +75,7 @@ def sms_reply():
 	pnumber = request.values.get('From', None)
 
 	# checks db for existing user
-	check_num = db.session.query(User).filter(User.phone_number == pnumber)
+	check_num = User.query.filter_by(phone_number=pnumber)
 
 	if db.session.query(q.exists()).scalar() == 1:
 		exist_user(pnumber)
