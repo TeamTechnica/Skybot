@@ -86,7 +86,7 @@ def sms_reply():
 		out_message = new_user(pnumber)
 	else:
 		uni = request.values.get('Body', None)
-		exist_user(pnumber, uni)
+		out_message = exist_user(pnumber, uni)
 	
 	return str(out_message)
 
