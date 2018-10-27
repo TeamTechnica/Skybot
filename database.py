@@ -13,9 +13,9 @@ class User(db.Model):
     #name = db.Column(db.String(50))
     uni = db.Column(db.String(7), unique = True)
     max_passengers = db.Column(db.Integer)
-    phone_number = db.Column(db.Integer)
+    phone_number = db.Column(db.String(50))
     verification_code = db.Column(db.Integer)
-    verified = db.Column(db.Boolean, default=False)
+    verified = db.Column(db.String(10), default='NONE')
     flights = db.relationship('Flight', backref='flyer')
 
 class Flight(db.Model):
