@@ -38,9 +38,11 @@ def send_verify_email(email):
 	
 	from_email = Email("CUSkyBot@gmail.com")
 	to_email = Email(str(email))
-	subject = "Verfify Email with SkyBot"
+	subject = "Verify Email with SkyBot"
 
-	random_num = random.randint(1, 100000000)
+	random_num = random.randint(1, 100000000) 
+	# commit the random number to user's data for comparison
+
 	content = Content("text/plain", "Your verifcation code is " + str(random_num))
 	mail = Mail(from_email, subject, to_email, content)
 	response = sg.client.mail.send.post(request_body=mail.get())
@@ -51,20 +53,25 @@ def send_verify_email(email):
 		return str(resp)
 	else:
 		resp = MessagingResponse()
-		resp.message("Check your email for a verification email!")
+		resp.message("Check your email for a verification email and text us the code")
+		# change verified state to EMAIL_SENT
 		return str(resp)	 
 
-def exist_user(phone_number, uni):
+def exist_user(phone_number, body):
 	curr_user = session.query(User).filter_by(phone_number=phone_number).first()
 	
 	# if verify state is NONE, call send email function
-	#if curr_user.verified == 'NONE':
-	send_verify_email(uni + "@columbia.edu")
+	if curr_user.verified == 'NONE':
+		message = send_verify_email(body + "@columbia.edu")
+	elif curr_user.verified == "EMAIL_SENT" and body == curr_user.verification_code:
+		message = verify()
+	return message
 
 def new_user(phone_number):
 	# create & insert new user into database
 	new_user = User(phone_number=phone_number)
 	session.add(new_user)
+	session.commit()
 
 	# send confirmation message & ask for UNI
 	resp = MessagingResponse()
@@ -82,11 +89,11 @@ def sms_reply():
 
 	# checks db for existing user
 	check_num = session.query(User).filter(User.phone_number == pnumber)
-	if session.query(check_num.exists()).scalar() == 1: # THIS MUST BE SWITCHED TO 1
+	if session.query(check_num.exists()).scalar() == 0:
 		out_message = new_user(pnumber)
 	else:
-		uni = request.values.get('Body', None)
-		out_message = exist_user(pnumber, uni)
+		body = request.values.get('Body', None)
+		out_message = exist_user(pnumber, body)
 	
 	return str(out_message)
 
