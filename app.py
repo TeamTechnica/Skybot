@@ -1,9 +1,10 @@
 from flask import Flask, request, redirect
 from twilio.twiml.messaging_response import MessagingResponse
 import random
+import sqlite3
 
 app = Flask(__name__)
-
+# conn = sqlite3.connect('example.db')
 
 def receive_flight_info():
 	# if verify state is VERIFIED
@@ -33,7 +34,7 @@ def exist_user(phone_number):
 
 def new_user(phone_number):
 	# insert into db -- verify state is set to NONE
-	# CODE HERE
+	# conn.execute(""" INSERT INTO XXXX (phone, "NONE"")
 	resp = MessagingResponse()
 	resp.message("Welcome to Skybot! What's your UNI?")
 	return str(resp)
@@ -46,10 +47,10 @@ def check_verification(phone_number):
 def sms_reply():
 
 	# gets phone number of user
-	body = request.values.get('From', None)
+	pnumber = request.values.get('From', None)
 	
 	# checks db for existing user
-	# CODE HERE
+	# conn.execute(""" SELECT EXISTS( SELECT 1 FROM xxxx WHERE YYY = pnumber) """)
 
 	# depending on result, call exist or new user function
 
