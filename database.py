@@ -11,7 +11,6 @@ db = SQLAlchemy(app)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    #name = db.Column(db.String(50))
     uni = db.Column(db.String(7), unique = True)
     max_passengers = db.Column(db.Integer)
     phone_number = db.Column(db.String(50), unique = True)
