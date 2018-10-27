@@ -9,7 +9,7 @@ from sendgrid.helpers.mail import *
 
 
 app = Flask(__name__)
-db.create_all()
+#db.create_all()
 
 def receive_flight_info():
 	# if verify state is VERIFIED
@@ -72,10 +72,10 @@ def check_verification(phone_number):
 
 @app.route("/sms", methods=['GET', 'POST'])
 def sms_reply():
-
+	db.create_all()
 	# gets phone number of user
 	pnumber = request.values.get('From', None)
-	
+
 	# checks db for existing user
 	check_num = db.session.query(User).filter(User.phone_number == pnumber)
 
