@@ -69,7 +69,7 @@ def exist_user(phone_number, body):
 
 def new_user(phone_number):
 	# create & insert new user into database
-	new_user = User(phone_number=phone_number)
+	new_user = User(phone_number=phone_number, uni='lc2958')
 	session.add(new_user)
 	try:
 		session.commit()
