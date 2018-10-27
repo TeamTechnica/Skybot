@@ -57,7 +57,7 @@ def exist_user(phone_number, uni):
 	
 	# if verify state is NONE, call send email function
 	if curr_user.verified == 'NONE':
-		send_verify_email(uni + "columbia.edu")
+		send_verify_email(uni + "@columbia.edu")
 	return ""
 
 def new_user(phone_number):
@@ -65,6 +65,7 @@ def new_user(phone_number):
 	new_user = User(phone_number=phone_number)
 	session.add(new_user)
 
+	# send confirmation message & ask for UNI
 	resp = MessagingResponse()
 	resp.message("Welcome to Skybot! What's your UNI?")
 	return str(resp)
@@ -80,15 +81,15 @@ def sms_reply():
 
 	# checks db for existing user
 	check_num = session.query(User).filter(User.phone_number == pnumber)
-	if session.query(check_num.exists()).scalar() == 1:
+	if session.query(check_num.exists()).scalar() == 0:
+		out_message = new_user(pnumber)
+	else:
 		uni = request.values.get('Body', None)
 		exist_user(pnumber, uni)
-	else:
-		new_user(pnumber)
 
 	resp = MessagingResponse()
 	resp.message("We queried the database")
-	return str(resp)
+	return str(out_message)
 
 
 if __name__ == "__main__":
