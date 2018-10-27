@@ -10,7 +10,8 @@ from sendgrid.helpers.mail import *
 
 engine = create_engine('sqlite:///site.db')
 Session = sessionmaker(bind=engine, autocommit=True)
-session = Session()
+conn = engine.connect()
+session = Session(bind=conn)
 
 app = Flask(__name__)
 
@@ -69,7 +70,7 @@ def exist_user(phone_number, body):
 
 def new_user(phone_number):
 	# create & insert new user into database
-	new_user = User(phone_number=phone_number, uni='lc2958')
+	new_user = User(phone_number=phone_number)
 	session.add(new_user)
 	try:
 		session.commit()
