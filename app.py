@@ -71,6 +71,8 @@ def new_user(phone_number):
 	# create & insert new user into database
 	new_user = User(phone_number=phone_number)
 	session.add(new_user)
+	session.rollback()
+	session.commit()
 
 	# send confirmation message & ask for UNI
 	resp = MessagingResponse()
