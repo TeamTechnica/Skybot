@@ -7,9 +7,8 @@ import sendgrid
 import os
 from sendgrid.helpers.mail import *
 
-
 app = Flask(__name__)
-#db.create_all()
+db.create_all()
 
 def receive_flight_info():
 	# if verify state is VERIFIED
@@ -31,7 +30,7 @@ def verify():
 
 def send_verify_email(email):
 
-	sg = sendgrid.SendGrid("SENDGRID_APIKEY") #API Key goes here
+	sg = sendgrid.SendGrid("SENDGRID_APIKEY") 
 	
 	from_email = Email(CUSkyBot@gmail.com)
 	to_email = Email(email)
@@ -42,7 +41,7 @@ def send_verify_email(email):
 	mail = Mail(from_email, subject, to_email, content)
 	response = sg.client.mail.send.post(request_body=mail.get())
 
-	if(str(response.status_code) != 201):
+	if str(response.status_code) != 201:
 		resp = MessagingResponse()
 		resp.message("Please give me your email again, error in sending verfication code")
 		return str(resp)
@@ -72,7 +71,6 @@ def check_verification(phone_number):
 
 @app.route("/sms", methods=['GET', 'POST'])
 def sms_reply():
-	db.create_all()
 	# gets phone number of user
 	pnumber = request.values.get('From', None)
 
