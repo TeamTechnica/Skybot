@@ -3,12 +3,16 @@ from twilio.twiml.messaging_response import MessagingResponse
 import random
 from database import * 
 import sendgrid
-
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 import os
 from sendgrid.helpers.mail import *
 
+engine = create_engine('sqlite:///site.db')
+Session = sessionmaker(bind=engine)
+session = Session()
+
 app = Flask(__name__)
-db.create_all()
 
 def receive_flight_info():
 	# if verify state is VERIFIED
@@ -75,7 +79,7 @@ def sms_reply():
 	pnumber = request.values.get('From', None)
 
 	# checks db for existing user
-	check_num = User.query.filter_by(phone_number='4106248627')
+	check_num = session.query(User).filter(User.phone_number == pnumber)
 	"""
 	if db.session.query(q.exists()).scalar() == 1:
 		exist_user(pnumber)
