@@ -4,6 +4,7 @@ import random
 
 app = Flask(__name__)
 
+
 def receive_flight_info():
 	# if verify state is VERIFIED
 	resp = MessagingResponse()
