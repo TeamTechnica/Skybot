@@ -76,7 +76,7 @@ def new_user(phone_number):
 	except:
 		session.rollback()
 	finally:
-		sessioon.close()
+		session.close()
 
 	# send confirmation message & ask for UNI
 	resp = MessagingResponse()
