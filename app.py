@@ -1,15 +1,18 @@
 from flask import Flask, request, redirect
 from twilio.twiml.messaging_response import MessagingResponse
 import random
-import sqlite3
+from database import * 
 import sendgrid
-
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 import os
 from sendgrid.helpers.mail import *
 
+engine = create_engine('sqlite:///site.db')
+Session = sessionmaker(bind=engine)
+session = Session()
 
 app = Flask(__name__)
-# conn = sqlite3.connect('example.db')
 
 def receive_flight_info():
 	# if verify state is VERIFIED
@@ -42,20 +45,26 @@ def send_verify_email(email):
 	mail = Mail(from_email, subject, to_email, content)
 	response = sg.client.mail.send.post(request_body=mail.get())
 
-	if(str(response.status_code) != 201):
+	if str(response.status_code) != 201:
 		resp = MessagingResponse()
 		resp.message("Please give me your email again, error in sending verfication code")
 		return str(resp)
 
 	return "" 
 
-def exist_user(phone_number):
+def exist_user(phone_number, uni):
+	curr_user = session.query(User).filter_by(phone_number=phone_number).first()
+	
 	# if verify state is NONE, call send email function
+	if curr_user.verified == 'NONE':
+		send_verify_email(uni + "columbia.edu")
 	return ""
 
 def new_user(phone_number):
-	# insert into db -- verify state is set to NONE
-	# conn.execute(""" INSERT INTO XXXX (phone, "NONE"")
+	# create & insert new user into database
+	new_user = User(phone_number=phone_number)
+	session.add(new_user)
+
 	resp = MessagingResponse()
 	resp.message("Welcome to Skybot! What's your UNI?")
 	return str(resp)
@@ -66,19 +75,19 @@ def check_verification(phone_number):
 
 @app.route("/sms", methods=['GET', 'POST'])
 def sms_reply():
-
 	# gets phone number of user
 	pnumber = request.values.get('From', None)
-	
-	# checks db for existing user
-	# conn.execute(""" SELECT EXISTS( SELECT 1 FROM xxxx WHERE YYY = pnumber) """)
 
-	# depending on result, call exist or new user function
+	# checks db for existing user
+	check_num = session.query(User).filter(User.phone_number == pnumber)
+	if session.query(check_num.exists()).scalar() == 1:
+		uni = request.values.get('Body', None)
+		exist_user(pnumber, uni)
+	else:
+		new_user(pnumber)
 
 	resp = MessagingResponse()
-	
-	resp.message("Welcome to Skybot")
-	
+	resp.message("We queried the database")
 	return str(resp)
 
 
