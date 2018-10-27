@@ -4,6 +4,10 @@ import random
 from database import * 
 import sendgrid
 
+import os
+from sendgrid.helpers.mail import *
+
+
 app = Flask(__name__)
 db.create_all()
 
@@ -26,16 +30,23 @@ def verify():
 	return str(resp)
 
 def send_verify_email(email):
-	# change verify state to email_sent 
-	client = sendgrid.SendGridClient("SENDGRID_APIKEY") #how to generate key?
-	message = sendgrid.Mail()
 
-	message.add_to(email)
-	message.sent_from("skybot@gmail.com") #neeed to make an email for skybot
-	message.set_subject("Verify with Skybot")
-	message.set_html("Hi please verfiy you email!") #need to send code
+	sg = sendgrid.SendGrid("SENDGRID_APIKEY") #API Key goes here
+	
+	from_email = Email(CUSkyBot@gmail.com)
+	to_email = Email(email)
+	subject = "Verfify Email with SkyBot"
 
-	client.send(message)
+	random_num = random.randint(1, 100,000,000)
+	content = Content("text/plain", "Your verifcation code is " + str(random_num))
+	mail = Mail(from_email, subject, to_email, content)
+	response = sg.client.mail.send.post(request_body=mail.get())
+
+	if(str(response.status_code) != 201):
+		resp = MessagingResponse()
+		resp.message("Please give me your email again, error in sending verfication code")
+		return str(resp)
+
 	return "" 
 
 def exist_user(phone_number):
