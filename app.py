@@ -34,13 +34,13 @@ def verify():
 
 def send_verify_email(email):
 
-	sg = sendgrid.SendGrid("SENDGRID_APIKEY") 
+	sg = sendgrid.SendGridAPIClient("SENDGRID_APIKEY") #API Key goes here
 	
-	from_email = Email(CUSkyBot@gmail.com)
-	to_email = Email(email)
+	from_email = Email("CUSkyBot@gmail.com")
+	to_email = Email(str(email))
 	subject = "Verfify Email with SkyBot"
 
-	random_num = random.randint(1, 100,000,000)
+	random_num = random.randint(1, 100000000)
 	content = Content("text/plain", "Your verifcation code is " + str(random_num))
 	mail = Mail(from_email, subject, to_email, content)
 	response = sg.client.mail.send.post(request_body=mail.get())
