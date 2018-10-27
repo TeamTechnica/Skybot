@@ -3,8 +3,10 @@ from twilio.twiml.messaging_response import MessagingResponse
 import random
 import sqlite3
 import sendgrid
+
 import os
 from sendgrid.helpers.mail import *
+
 
 app = Flask(__name__)
 # conn = sqlite3.connect('example.db')
@@ -28,6 +30,7 @@ def verify():
 	return str(resp)
 
 def send_verify_email(email):
+
 	sg = sendgrid.SendGrid("SENDGRID_APIKEY") #API Key goes here
 	
 	from_email = Email(CUSkyBot@gmail.com)
@@ -43,7 +46,7 @@ def send_verify_email(email):
 		resp = MessagingResponse()
 		resp.message("Please give me your email again, error in sending verfication code")
 		return str(resp)
-	
+
 	return "" 
 
 def exist_user(phone_number):
