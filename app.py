@@ -2,6 +2,7 @@ from flask import Flask, request, redirect
 from twilio.twiml.messaging_response import MessagingResponse
 import random
 import sqlite3
+import sendgrid
 
 app = Flask(__name__)
 # conn = sqlite3.connect('example.db')
@@ -24,8 +25,16 @@ def verify():
 		4. Maximum Number of Additional Passengers""")
 	return str(resp)
 
-def send_verify_email():
-	# change verify state to email_sent 
+def send_verify_email(email):
+	client = sendgrid.SendGrid("SENDGRID_APIKEY")
+	
+	message = sendgrid.Mail()
+	message.add_to(email)
+	message.set_from("Skybot@gmail.com")
+	message.set_subject("Verify with Skybot")
+	message.set_html("PLease verify your email with Skybot")	
+	
+	client.send(message)
 	return "" 
 
 def exist_user(phone_number):
