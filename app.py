@@ -3,6 +3,8 @@ from twilio.twiml.messaging_response import MessagingResponse
 import random
 import sqlite3
 import sendgrid
+import os
+from sendgrid.helpers.mail import *
 
 app = Flask(__name__)
 # conn = sqlite3.connect('example.db')
@@ -26,15 +28,22 @@ def verify():
 	return str(resp)
 
 def send_verify_email(email):
-	client = sendgrid.SendGrid("SENDGRID_APIKEY")
+	sg = sendgrid.SendGrid("SENDGRID_APIKEY") #API Key goes here
 	
-	message = sendgrid.Mail()
-	message.add_to(email)
-	message.set_from("Skybot@gmail.com")
-	message.set_subject("Verify with Skybot")
-	message.set_html("PLease verify your email with Skybot")	
+	from_email = Email(CUSkyBot@gmail.com)
+	to_email = Email(email)
+	subject = "Verfify Email with SkyBot"
+
+	random_num = random.randint(1, 100,000,000)
+	content = Content("text/plain", "Your verifcation code is " + str(random_num))
+	mail = Mail(from_email, subject, to_email, content)
+	response = sg.client.mail.send.post(request_body=mail.get())
+
+	if(str(response.status_code) != 201):
+		resp = MessagingResponse()
+		resp.message("Please give me your email again, error in sending verfication code")
+		return str(resp)
 	
-	client.send(message)
 	return "" 
 
 def exist_user(phone_number):
