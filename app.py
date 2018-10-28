@@ -9,6 +9,9 @@ import os
 from sendgrid.helpers.mail import *
 
 engine = create_engine('sqlite:///site.db')
+Session = sessionmaker(autoflush=True, autocommit=False, bind=engine)
+conn = engine.connect()
+session = Session(bind=conn)
 
 app = Flask(__name__)
 
@@ -85,10 +88,6 @@ def check_verification(phone_number):
 
 @app.route("/sms", methods=['GET', 'POST'])
 def sms_reply():
-	Session = sessionmaker(bind=engine, autocommit=True)
-	conn = engine.connect()
-	session = Session(bind=conn)
-	
 	# gets phone number of user
 	pnumber = request.values.get('From', None)
 
