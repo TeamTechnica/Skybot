@@ -66,6 +66,8 @@ def exist_user(phone_number, body):
 		message = send_verify_email(body + "@columbia.edu")
 	elif curr_user.verified == "EMAIL_SENT" and body == curr_user.verification_code:
 		message = verify()
+	else: 
+		message = verify()
 	return message
 
 def new_user(phone_number):
