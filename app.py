@@ -26,7 +26,7 @@ def verify():
 	# triggered when they send the correct verification code
 	resp = MessagingResponse()
 	resp.message("""Thank you for verifying your identity! Let's get 
-		started with your flight information. Please answer the following:
+		started with your flight information. Please answer the following, separated by commas:
 		1. JFK/LGA/EWR
 		2. Date (MM/DD/YYYY)
 		3. Flight Time (XX:XX AM/PM) 
@@ -93,7 +93,7 @@ def sms_reply():
 
 	# checks db for existing user
 	check_num = session.query(User).filter(User.phone_number == pnumber)
-	if session.query(check_num.exists()).scalar() == 0:
+	if session.query(check_num.exists()).scalar() == False:
 		out_message = new_user(pnumber)
 	else:
 		body = request.values.get('Body', None)
