@@ -2,6 +2,18 @@
 
 ## About SkyBot
 
+SkyBot is a Facebook Messenger bot that allows traveling Columbia students to share rides to the airport, matching them with other students going to the same airport at the same time. Currently, Columbia students have a designated Facebook Group called Columbia / Barnard Airport Cab Sharing, where they post their travel itineraries in hopes of connecting  with someone who has a similar flight departure time, in an effort to split a cab fare to save money. In New York City, cab fare to airports can be as high as $100 depending on the number of riders, transportation peak hours, and weather inclemation. SkyBot is a cost effective solution that addresses these pain points.
+
+Using our matching algorithm, SkyBot accurately matches students with the closest travel itineraries and shared preferences. With API integrations, including Skyscanner, Lyft, Facebook, and Google Calendar, students can easily:
+
+- Access their travel itineraries
+- Estimate transportation cost
+- Split transportation cost
+- Connects matches on Facebook
+- Share calendar invites and reminders 
+
+SkyBot aims to provide a simple user interface to connect people in order to make the process of getting to your desired destination less of a hassle.
+
 ## Structure
 
 ```bash
@@ -11,11 +23,21 @@
 ├── Procfile          # Used when deploying the bot to production
 ├── app.py            # The main bot code
 └── SkyBot/           # All supporting code used by app.py
-    ├── test/         # Features related to academic life
-    ├── templates/    # Features related to clubs
+    ├── test/         # Tests for Skybot
+    ├── templates/    # TO DO
 ```
 
 ## Technology Stack
+
+- Development Framework: Python (Flask)
+- Unit Testing Tool: PyUnit
+- Static Analysis Tool: Pyflakes
+- Build Tool: PyBuilder
+- Continuous Integration Tool: Jenkins
+- Data Storage: SQLAlchemy
+- VersionControl: Github
+- APIs: Twilio, Lyft Fare Estimator, Google Calendar 
+
 
 ## Connecting to Twilio
 
