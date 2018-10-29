@@ -31,9 +31,9 @@ SkyBot aims to provide a simple user interface to connect people in order to mak
 
 - Development Framework: Python (Flask)
 - Unit Testing Tool: PyUnit
-- Static Analysis Tool: Pyflakes
-- Build Tool: PyBuilder
-- Continuous Integration Tool: Jenkins
+- Static Analysis Tool: PyLint
+- Build Tool: Travis CI
+- Continuous Integration Tool: Travis CI
 - Data Storage: SQLAlchemy
 - VersionControl: Github
 - APIs: Twilio, Lyft Fare Estimator, Google Calendar 
