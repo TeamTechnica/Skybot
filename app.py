@@ -25,8 +25,8 @@ def receive_flight_info():
 def verify():
 	# triggered when they send the correct verification code
 	resp = MessagingResponse()
-	resp.message("""Thank you for verifying your identity! Let's get 
-		started with your flight information. Please answer the following, separated by commas:
+	resp.message("""Thanks for verifying! Let's get started with your 
+		flight information. Please answer the following, separated by commas:
 		1. JFK/LGA/EWR
 		2. Date (MM/DD/YYYY)
 		3. Flight Time (XX:XX AM/PM) 
@@ -43,7 +43,8 @@ def send_verify_email(email):
 
 	random_num = random.randint(1, 100000000) 
 	# commit the random number to user's data for comparison
-
+	# session.query().filter(User.phone_number == pnumber).update({"verification_code": random_num})
+	
 	content = Content("text/plain", "Your verifcation code is " + str(random_num))
 	mail = Mail(from_email, subject, to_email, content)
 	response = sg.client.mail.send.post(request_body=mail.get())
@@ -56,6 +57,7 @@ def send_verify_email(email):
 		resp = MessagingResponse()
 		resp.message("Check your email for a verification email and text us the code")
 		# change verified state to EMAIL_SENT
+		# session.query().filter(User.phone_number == pnumber).update({"verified": "EMAIL_SENT"})
 		return str(resp)	 
 
 def exist_user(phone_number, body):
@@ -72,7 +74,7 @@ def exist_user(phone_number, body):
 
 def new_user(phone_number):
 	# create & insert new user into database
-	new_user = User(phone_number=phone_number)
+	new_user = User(phone_number=phone_number, verified="NONE")
 	session.add(new_user)
 	session.commit()
 	session.close()
