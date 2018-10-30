@@ -64,7 +64,7 @@ def send_verify_email(email, phone_number):
     random_num = random.randint(1, 100000000)
     
     # commit the random number to user's data for comparison
-    session.query().filter(User.phone_number == phone_number).update({"verification_code": random_num})
+    # session.query().filter(User.phone_number == phone_number).update({"verification_code": random_num})
 
     content = Content("text/plain", "Verifcation Code: " + str(random_num))
     mail = Mail(from_email, subject, to_email, content)
