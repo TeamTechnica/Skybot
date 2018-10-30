@@ -9,6 +9,8 @@ app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///site.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+# Schema for tables in database
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     uni = db.Column(db.String(7), unique = True)
