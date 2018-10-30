@@ -1,5 +1,7 @@
 # SkyBot
 
+Contributors: @joicodes, @lesley2958, @MJDev, @jmarreallis
+
 ## About SkyBot
 
 SkyBot is an SMS chat bot that allows traveling Columbia students to share rides to the airport, matching them with other students going to the same airport at the same time. Currently, Columbia students have a designated Facebook Group called Columbia / Barnard Airport Cab Sharing, where they post their travel itineraries in hopes of connecting  with someone who has a similar flight departure time, in an effort to split a cab fare to save money. In New York City, cab fare to airports can be as high as $100 depending on the number of riders, transportation peak hours, and weather inclemation. SkyBot is a cost effective solution that addresses these pain points.
@@ -36,6 +38,7 @@ SkyBot aims to provide a simple user interface to connect people in order to mak
 - Continuous Integration Tool: Travis CI
 - Data Storage: SQLAlchemy
 - VersionControl: Github
+- Cloud Platform: Heroku
 - APIs: Twilio, Lyft Fare Estimator, Google Calendar, SendGrid  
 
 
@@ -56,4 +59,3 @@ This function is triggered whenever a message is sent to our Twilio number. With
 def sms_reply():
     body = request.values.get('From', None)
 ```
-
