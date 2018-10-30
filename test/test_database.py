@@ -1,3 +1,6 @@
+import sys
+sys.path.append('../')
+import database
 from database import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
