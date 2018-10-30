@@ -22,7 +22,7 @@ def parse_flight_info(text_message):
     # session.add(new_user)
     # session.commit()
     # session.close()
-    continue
+    return ""
 
 
 def receive_flight_info():
