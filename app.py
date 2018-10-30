@@ -16,6 +16,15 @@ session = Session(bind=conn)
 app = Flask(__name__)
 
 
+def parse_flight_info(text_message):
+    """ Parses incoming text for flight information """
+    # new_flight = Flight()
+    # session.add(new_user)
+    # session.commit()
+    # session.close()
+    continue
+
+
 def receive_flight_info():
     """ Hanldes communication once all needed info is collected """
 
