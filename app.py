@@ -49,7 +49,7 @@ def verify():
     return str(resp)
 
 
-def send_verify_email(email):
+def send_verify_email(email, phone_number):
     """ Sends user verification email
 
     Keyword arguments:
@@ -64,7 +64,7 @@ def send_verify_email(email):
     random_num = random.randint(1, 100000000)
     
     # commit the random number to user's data for comparison
-    session.query().filter(User.phone_number == pnumber).update({"verification_code": random_num})
+    session.query().filter(User.phone_number == phone_number).update({"verification_code": random_num})
 
     content = Content("text/plain", "Verifcation Code: " + str(random_num))
     mail = Mail(from_email, subject, to_email, content)
@@ -96,7 +96,7 @@ def exist_user(phone_number, body):
 
     # if verify state is NONE, call send email function
     if curr_user.verified == 'NONE':
-        message = send_verify_email(body + "@columbia.edu")
+        message = send_verify_email(body + "@columbia.edu", phone_number)
     elif curr_user.verified == "EMAIL_SENT" and body == curr_user.verification_code:
         message = verify()
     else:
