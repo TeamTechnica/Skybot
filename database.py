@@ -9,6 +9,7 @@ app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///site.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+#user table fields
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     uni = db.Column(db.String(7), unique = True)
@@ -18,6 +19,7 @@ class User(db.Model):
     verified = db.Column(db.String(10), default='NONE')
     flights = db.relationship('Flight', backref='flyer')
 
+#flight table fields
 class Flight(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     creation_date = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)
