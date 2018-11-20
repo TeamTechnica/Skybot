@@ -116,3 +116,5 @@ class TestDatabase(unittest.TestCase):
             session.rollback()
             error = "User is already in database"
         self.assertEqual(error, "User is already in database")
+
+        
