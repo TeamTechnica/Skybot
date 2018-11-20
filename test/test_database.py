@@ -97,7 +97,7 @@ class TestDatabase(unittest.TestCase):
             flight_info.append((matching_flights[i].airport, matching_flights[i].departure_time ))
        
         result = flight_info
-        self.assertEqual(result, [('JFK', 123000), ('JFK', 123000)])
+        self.assertEqual(result, [('JFK', '123000'), ('JFK', '123000')])
 
 
 # Deletes test cases from database
@@ -116,3 +116,5 @@ class TestDatabase(unittest.TestCase):
             session.rollback()
             error = "User is already in database"
         self.assertEqual(error, "User is already in database")
+
+        

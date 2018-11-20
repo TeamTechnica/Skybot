@@ -30,5 +30,5 @@ def get_cost(location, num_passengers):
     if airport_location.upper() == "EWR":
         ewr_cost = '%.2f' % ((ewr_json['cost_estimates'][1]['estimated_cost_cents_max']/100) / total_passengers)
         cost = '$'+str(ewr_cost)
-
+    
     return cost

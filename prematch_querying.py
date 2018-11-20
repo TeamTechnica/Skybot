@@ -121,7 +121,3 @@ session.commit()
 
 #will continue with test to access the flights linked to a user.
 
-
-
-
-
