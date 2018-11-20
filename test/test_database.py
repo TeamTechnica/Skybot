@@ -15,7 +15,7 @@ session = Session()
 db.drop_all()
 db.create_all()
 
-# Creates test database instances
+# Creates test database instances 
 
 test_user1 = User(uni='test100', max_passengers = 2, phone_number = "100000001")
 test_user2 = User(uni='test101', max_passengers = 1, phone_number = "100000002")
