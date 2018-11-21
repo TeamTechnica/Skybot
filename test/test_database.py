@@ -98,7 +98,7 @@ class TestDatabase(unittest.TestCase):
        
         result = flight_info
 
-        self.assertEqual(result, [('JFK', "123000"), ('JFK', "123000")])
+        self.assertEqual(result, [('JFK', '123000'), ('JFK', '123000')])
 
 # Deletes test cases from database
     def test_Delete(self):
