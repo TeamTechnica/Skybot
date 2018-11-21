@@ -1,23 +1,22 @@
 import sys
-sys.path.append('Skybot/')
-from database_changes import *
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-import unittest
-import sqlalchemy
+# sys.path.append('Skybot/')
+# from database_changes import *
+# from sqlalchemy import create_engine
+# from sqlalchemy.orm import sessionmaker
+# import unittest
+# import sqlalchemy
 
-app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///tester2.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-engine = create_engine('sqlite:///tester2.db')
-Session = sessionmaker(bind=engine)
-session = Session()
+# app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///tester2.db'
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# engine = create_engine('sqlite:///tester2.db')
+# Session = sessionmaker(bind=engine)
+# session = Session()
 
 # db.drop_all()
-db.create_all()
+# db.create_all()
 
-# Creates test database instances
+# # Creates test database instances
 
-test_user1 = User(phone_number = '100077879001')
 # test_user1 = User(uni='test100', max_passengers = 2, phone_number = "100000001")
 # test_user2 = User(uni='test101', max_passengers = 1, phone_number = "100000002")
 # test_user3 = User(uni='test102', max_passengers = 2, phone_number = "100000003")
