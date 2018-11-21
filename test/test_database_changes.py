@@ -13,21 +13,21 @@ engine = create_engine('sqlite:///tester2.db')
 Session = sessionmaker(bind=engine)
 session = Session()
 
-# db.drop_all()
-# db.create_all()
+db.drop_all()
+db.create_all()
 
-# # Creates test database instances
+# Creates test database instances
 
-# test_user1 = User(uni='test100', max_passengers = 2, phone_number = "100000001")
-# test_user2 = User(uni='test101', max_passengers = 1, phone_number = "100000002")
-# test_user3 = User(uni='test102', max_passengers = 2, phone_number = "100000003")
-# test_user4 = User(uni='test103', max_passengers = 2, phone_number = "100000004")
+test_user1 = User(uni='test100', max_passengers = 2, phone_number = "100000001")
+test_user2 = User(uni='test101', max_passengers = 1, phone_number = "100000002")
+test_user3 = User(uni='test102', max_passengers = 2, phone_number = "100000003")
+test_user4 = User(uni='test103', max_passengers = 2, phone_number = "100000004")
 
-# test_flight1 = Flight(airport = 'JFK', flight_date = 10312018, departure_time = 123000)
-# test_flight2 = Flight(airport = 'JFK', flight_date = 10312018, departure_time = 123000)
-# test_flight3 = Flight(airport = 'LGA', flight_date = 12252018, departure_time = 124500)
-# test_flight4 = Flight(airport = 'LGA', flight_date = 12252018, departure_time = 100000)
-# test_flight5 = Flight(airport = 'LGA', flight_date = 12252018, departure_time = 100000)
+test_flight1 = Flight(airport = 'JFK', flight_date = 10312018, departure_time = 123000)
+test_flight2 = Flight(airport = 'JFK', flight_date = 10312018, departure_time = 123000)
+test_flight3 = Flight(airport = 'LGA', flight_date = 12252018, departure_time = 124500)
+test_flight4 = Flight(airport = 'LGA', flight_date = 12252018, departure_time = 100000)
+test_flight5 = Flight(airport = 'LGA', flight_date = 12252018, departure_time = 100000)
 
 
 class TestDatabase(unittest.TestCase):
