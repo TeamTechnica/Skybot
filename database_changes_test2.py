@@ -17,7 +17,7 @@ db.create_all()
 
 # Creates test database instances
 
-test_user1 = User(uni='test100', max_passengers = 2)
+test_user1 = User(uni='test100', phone_number = "100000001")
 # test_user1 = User(uni='test100', max_passengers = 2, phone_number = "100000001")
 # test_user2 = User(uni='test101', max_passengers = 1, phone_number = "100000002")
 # test_user3 = User(uni='test102', max_passengers = 2, phone_number = "100000003")
