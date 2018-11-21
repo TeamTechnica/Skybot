@@ -6,9 +6,9 @@ from sqlalchemy.orm import sessionmaker
 import unittest
 import sqlalchemy
 
-app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///tester.db'
+app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///tester2.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-engine = create_engine('sqlite:///tester.db')
+engine = create_engine('sqlite:///tester2.db')
 Session = sessionmaker(bind=engine)
 session = Session()
 
