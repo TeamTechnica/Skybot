@@ -12,6 +12,7 @@ engine = create_engine('sqlite:///tester2.db')
 Session = sessionmaker(bind=engine)
 session = Session()
 
+'''
 db.drop_all()
 db.create_all()
 
@@ -28,7 +29,7 @@ test_flight3 = Flight(airport = 'LGA', flight_date = 12252018, departure_time = 
 test_flight4 = Flight(airport = 'LGA', flight_date = 12252018, departure_time = 100000)
 test_flight5 = Flight(airport = 'LGA', flight_date = 12252018, departure_time = 100000)
 
-'''
+
 class TestDatabase(unittest.TestCase):
 
     # Testing for schema
