@@ -12,8 +12,8 @@ engine = create_engine('sqlite:///tester2.db')
 Session = sessionmaker(bind=engine)
 session = Session()
 
-# db.drop_all()
-# db.create_all()
+db.drop_all()
+db.create_all()
 
 # # Creates test database instances
 
