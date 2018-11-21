@@ -1,16 +1,16 @@
 import sys
-# sys.path.append('Skybot/')
-# from database_changes import *
-# from sqlalchemy import create_engine
-# from sqlalchemy.orm import sessionmaker
-# import unittest
-# import sqlalchemy
+sys.path.append('Skybot/')
+from database_changes import *
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+import unittest
+import sqlalchemy
 
-# app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///tester2.db'
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# engine = create_engine('sqlite:///tester2.db')
-# Session = sessionmaker(bind=engine)
-# session = Session()
+app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///tester2.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+engine = create_engine('sqlite:///tester2.db')
+Session = sessionmaker(bind=engine)
+session = Session()
 
 # db.drop_all()
 # db.create_all()
