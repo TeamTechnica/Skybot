@@ -1,3 +1,5 @@
+import sys
+sys.path.append('Skybot/')
 from database import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -13,7 +15,7 @@ session = Session()
 db.drop_all()
 db.create_all()
 
-# Creates test database instances
+# Creates test database instances 
 
 test_user1 = User(uni='test100', max_passengers = 2, phone_number = "100000001")
 test_user2 = User(uni='test101', max_passengers = 1, phone_number = "100000002")
@@ -95,7 +97,7 @@ class TestDatabase(unittest.TestCase):
             flight_info.append((matching_flights[i].airport, matching_flights[i].departure_time ))
        
         result = flight_info
-        self.assertEqual(result, [('JFK', 123000), ('JFK', 123000)])
+        self.assertEqual(result, [('JFK', '123000'), ('JFK', '123000')])
 
 
 # Deletes test cases from database
@@ -114,3 +116,5 @@ class TestDatabase(unittest.TestCase):
             session.rollback()
             error = "User is already in database"
         self.assertEqual(error, "User is already in database")
+
+        

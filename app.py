@@ -62,8 +62,11 @@ def send_verify_email(email):
     subject = "Verify Email with SkyBot"
 
     random_num = random.randint(100000000000, 111111111111)
+
     # commit the random number to user's data for comparison
-    # session.query().filter(User.phone_number == pnumber).update({"verification_code": random_num})
+    #upd = """"UPDATE User SET verification_code = """ + random_num 
+    #    + """ WHERE phone_number = """ + phone_number + ";"
+    # engine.execute(upd)
 
     content = Content("text/plain", "Verifcation Code: " + str(random_num))
     mail = Mail(from_email, subject, to_email, content)
@@ -97,6 +100,7 @@ def exist_user(phone_number, body):
     if curr_user.verified == 'NONE':
         message = send_verify_email(body + "@columbia.edu")
     elif curr_user.verified == "EMAIL_SENT" and body == curr_user.verification_code:
+        # update verified state to "VERIFIED"
         message = verify()
     else:
         message = verify()
@@ -139,6 +143,6 @@ def sms_reply():
 
     return str(out_message)
 
-
+#comment
 if __name__ == "__main__":
     app.run(debug=True)

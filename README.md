@@ -1,6 +1,6 @@
 # SkyBot
 
-Contributors: @joicodes, @lesley2958, @MJDev, @jmarreallis
+Contributors: @joicodes, @lesley2958, @MJDev, @KlarizsaPadilla
 
 ## About SkyBot
 

@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security  import generate_password_hash, check_password_hash
+from werkzeug.security  import generate_password_hash
 import sqlite3
 import datetime
 
@@ -23,7 +23,7 @@ class Flight(db.Model):
     creation_date = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)
     airport = db.Column(db.String(3))
     flight_date =  db.Column(db.String(10))
-    departure_time = db.String(10)
+    departure_time = db.Column(db.String(10))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     match_id = db.Column(db.Integer, db.ForeignKey('match.id'))
 
