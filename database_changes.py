@@ -44,13 +44,13 @@ class User(db.Model):
     stock = db.relationship('Match', backref='product',
                          primaryjoin=id == Match.user_id)
 
-    def __init__(self, uni, max_passengers, phone_number):
-        self.uni = uni
-        self.max_passengers = max_passengers
-        self.phone_number = phone_number
+    # def __init__(self, uni, max_passengers, phone_number):
+    #     self.uni = uni
+    #     self.max_passengers = max_passengers
+    #     self.phone_number = phone_number
 
-    def __repr__(self):
-        return '<User {}>'.format(self.uni)
+    # def __repr__(self):
+    #     return '<User {}>'.format(self.uni)
 
 class Flight(db.Model):
     """ SQLAlchemy Flights Model """
@@ -66,13 +66,13 @@ class Flight(db.Model):
     stock = relationship('Match', backref='flight',
                          primaryjoin=id == Match.flight_id)
 
-    def __init__(self, airport, flight_date, departure_time):
-        self.airport = airport
-        self.flight_date = flight_date
-        self.departure_time = departure_time
+    # def __init__(self, airport, flight_date, departure_time):
+    #     self.airport = airport
+    #     self.flight_date = flight_date
+    #     self.departure_time = departure_time
 
-    def __repr__(self):
-        return '<Category {}>'.format(self.flight_num)
+    # def __repr__(self):
+    #     return '<Category {}>'.format(self.flight_num)
 
 
 if __name__ == '__database__':
