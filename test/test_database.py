@@ -1,5 +1,5 @@
-import sys
-sys.path.append('Data/')
+import os, sys; sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+
 from databaseChanges import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -35,15 +35,15 @@ class TestDatabase(unittest.TestCase):
     
     def test_UserSchema(self):    
         result = str(User)
-        self.assertEqual(result, "<class 'database.User'>")
+        self.assertEqual(result, "<class 'databaseChanges.User'>")
 
     def test_FlightSchema(self):    
         result = str(Flight)
-        self.assertEqual(result, "<class 'database.Flight'>")
+        self.assertEqual(result, "<class 'databaseChanges.Flight'>")
 
     def test_MatchSchema(self):    
         result = str(Match)
-        self.assertEqual(result, "<class 'database.Match'>")
+        self.assertEqual(result, "<class 'databaseChanges.Match'>")
 
     #  Test querying data
     
@@ -97,7 +97,7 @@ class TestDatabase(unittest.TestCase):
             flight_info.append((matching_flights[i].airport, matching_flights[i].departure_time ))
        
         result = flight_info
-        self.assertEqual(result, [('JFK', '123000'), ('JFK', '123000')])
+        self.assertEqual(result, [('JFK', 123000), ('JFK', 123000)])
 
 
 # Deletes test cases from database
