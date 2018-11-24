@@ -8,7 +8,7 @@ from twilio.rest import Client
 
 
 class AppTests(unittest.TestCase):
-
+	'''
 	rand_num = str(random.randint(100000000000, 111111111111))
 
 	def test_new_user(self):           
@@ -20,7 +20,7 @@ class AppTests(unittest.TestCase):
 		
 		self.assertEqual(message, "Welcome to Skybot! What's your UNI?")
 
-	'''
+	
 	def test_uni_login(self):
 		req = requests.post('https://cuskybot.herokuapp.com/sms', data = {'To': '+16674014282', 'From': rand_num, 'Body': 'mj2729'})
 		root = ET.fromstring(str(req.text))
