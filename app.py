@@ -1,7 +1,7 @@
 from flask import Flask, request, redirect
 from twilio.twiml.messaging_response import MessagingResponse
 import random
-from database import *
+from databaseChanges import *
 import sendgrid
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
