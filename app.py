@@ -61,8 +61,8 @@ def send_verify_email(email):
     to_email = Email(str(email))
     subject = "Verify Email with SkyBot"
 
-    random_num = random.randint(1, 100000000)
-    
+    random_num = random.randint(100000000000, 111111111111)
+
     # commit the random number to user's data for comparison
     #upd = """"UPDATE User SET verification_code = """ + random_num 
     #    + """ WHERE phone_number = """ + phone_number + ";"
