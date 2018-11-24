@@ -10,13 +10,6 @@ from sqlalchemy.orm import sessionmaker, relationship
 import sys
 
 
-sys.path.append('Skybot/')
-from database import *
-from sqlalchemy import create_engine
-#from sqlalchemy.orm import sessionmaker
-import unittest
-import sqlalchemy
-
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///site.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -41,34 +34,22 @@ class User(db.Model):
     verification_code = db.Column(db.Integer)
     verified = db.Column(db.String(10), default='NONE')
 
-    stock = db.relationship('Match', backref='product',
+    stock = db.relationship('Match', backref='user',
                          primaryjoin=id == Match.user_id)
-
-    def __init__(self, uni):
-        self.uni = uni
-
-    def __repr__(self):
-        return '<User {}>'.format(self.uni)
 
 class Flight(db.Model):
     """ SQLAlchemy Flights Model """
     __tablename__ = 'flights'
     id = db.Column(db.Integer, primary_key=True)
-    flight_num = db.Column(db.String(80), nullable=False) #added this field
     creation_date = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)
+    flight_num = db.Column(db.String(6))
     airport = db.Column(db.String(3))
-    flight_date =  db.Column(db.String(10))
-    departure_time = db.Column(db.String(10))
+    flight_date =  db.Column(db.Integer)
+    departure_time = db.Column(db.Integer)
+
 
     stock = relationship('Match', backref='flight',
                          primaryjoin=id == Match.flight_id)
-
-    def __init__(self, flight_num):
-        self.flight_num = flight_num
-
-    def __repr__(self):
-        return '<Category {}>'.format(self.flight_num)
-
 
 if __name__ == '__database__':
     app.run(Debug=True)
