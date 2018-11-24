@@ -1,6 +1,6 @@
 import sys
 sys.path.append('Skybot/')
-from database_changes import *
+from databaseChanges import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import unittest
