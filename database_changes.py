@@ -44,8 +44,10 @@ class User(db.Model):
     stock = db.relationship('Match', backref='product',
                          primaryjoin=id == Match.user_id)
 
-    def __init__(self, uni):
+    def __init__(self, uni, max_passengers, phone_number):
         self.uni = uni
+        self.max_passengers = max_passengers
+        self.phone_number = phone_number
 
     def __repr__(self):
         return '<User {}>'.format(self.uni)
@@ -57,14 +59,17 @@ class Flight(db.Model):
     flight_num = db.Column(db.String(80), nullable=False) #added this field
     creation_date = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)
     airport = db.Column(db.String(3))
-    flight_date =  db.Column(db.String(10))
-    departure_time = db.Column(db.String(10))
+    flight_date =  db.Column(db.Integer)
+    departure_time = db.Column(db.Integer)
+
 
     stock = relationship('Match', backref='flight',
                          primaryjoin=id == Match.flight_id)
 
-    def __init__(self, flight_num):
-        self.flight_num = flight_num
+    def __init__(self, airport, flight_date, departure_time):
+        self.airport = airport
+        self.flight_date = flight_date
+        self.departure_time = departure_time
 
     def __repr__(self):
         return '<Category {}>'.format(self.flight_num)
