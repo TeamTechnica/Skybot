@@ -4,4 +4,4 @@ python:
   - "3.6"
 
 script: 
-  - nosetests -v
+  - nosetests -v --with-coverage --cover-html-dir=coverage_docs --cover-html
