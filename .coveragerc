@@ -1,5 +1,6 @@
 [run]
 branch = True
+source = .
 
 [report]
 # Regexes for lines to exclude from consideration
@@ -16,10 +17,11 @@ exclude_lines =
     raise NotImplementedError
 
     # Don't complain if non-runnable code isn't run:
-    if 0:
     if __name__ == .__main__.:
 
 ignore_errors = True
+omit =
+    test/*
 
 [html]
 directory = coverage_html_report
