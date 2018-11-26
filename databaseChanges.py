@@ -18,7 +18,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 class Match(Base):
     __tablename__ = 'match'
-    id = Column(.Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)
     #user_id = Column(Integer, primary_key=True)
     flight_id = Column(Integer, ForeignKey('flights.id'), primary_key=True)
     user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
