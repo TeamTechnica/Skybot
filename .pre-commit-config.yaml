@@ -11,6 +11,12 @@ repos:
     -   id: name-tests-test
     -   id: requirements-txt-fixer
     -   id: flake8
+-   repo: git://github.com/marick/pre-commit-hooks
+    sha: a4bfe84e14025ee174a48cbe3069b14f9421efb6
+    stages: [commit, push]
+    hooks:
+    -   id: only-branch-pushes
+        args: [prevent, ^(production|master)$]
 -   repo: https://github.com/pre-commit/mirrors-autopep8
     rev: v1.4
     hooks:
