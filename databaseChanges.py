@@ -14,6 +14,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///site.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 #db = SQLAlchemy(app)
+Base = declarative_base()
 
 
 class Match(Base):
@@ -41,7 +42,7 @@ class Flight(Base):
     """ SQLAlchemy Flights Base """
     __tablename__ = 'flights'
     id = Column(Integer, primary_key=True)
-    creation_date = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
+    #creation_date = Column(datetime(timezone=True), default=datetime.datetime.utcnow)
     flight_num = Column(String(6))
     airport = Column(String(3))
     flight_date =  Column(Integer)
