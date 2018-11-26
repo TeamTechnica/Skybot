@@ -48,7 +48,12 @@ omit =
     */twilio/*
     */urllib3/*
     */werkzeug/*
-
+    */socks.py
+    */asyncio/*
+    */concurrent/*
+    */html/*
+    */http/*
+    */multiprocessing/*
 [report]
 # Regexes for lines to exclude from consideration
 exclude_lines =
@@ -114,6 +119,12 @@ omit =
     */twilio/*
     */urllib3/*
     */werkzeug/*
+    */socks.py
+    */asyncio/*
+    */concurrent/*
+    */html/*
+    */http/*
+    */multiprocessing/*
 
 [html]
 directory = coverage_html_report
