@@ -4,4 +4,9 @@ python:
   - "3.6"
 
 script: 
-  - nosetests -v
+  - nosetests -c nose.cfg
+
+after_success:
+  - codecov
+
+

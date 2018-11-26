@@ -5,11 +5,11 @@ import app
 import xml.etree.ElementTree as ET
 from twilio.rest import Client
 
-
+rand_num = str(random.randint(100000000000, 111111111111))
 
 class AppTests(unittest.TestCase):
+
 	'''
-	rand_num = str(random.randint(100000000000, 111111111111))
 
 	def test_new_user(self):           
 		req = requests.post('https://cuskybot.herokuapp.com/sms', data = {'To': '+16674014282', 'From': rand_num, 'Body': 'me'})
