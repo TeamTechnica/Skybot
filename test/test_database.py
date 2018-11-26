@@ -1,19 +1,25 @@
-import sys
-sys.path.append('Skybot/')
+# import sys
+# sys.path.append('Skybot/')
+
+import os, sys; sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+
 from databaseChanges import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import unittest
 import sqlalchemy
 
-app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///tester.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///tester.db'
+# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 engine = create_engine('sqlite:///tester.db')
 Session = sessionmaker(bind=engine)
 session = Session()
 
-db.drop_all()
-db.create_all()
+# db.drop_all()
+# db.create_all()
+
+engine = sqlalchemy.create_engine('sqlite:///:memory:')
+Base = declarative_base()
 
 # Creates test database instances 
 
@@ -22,11 +28,11 @@ test_user2 = User(uni='test101', max_passengers = 1, phone_number = "100000002")
 test_user3 = User(uni='test102', max_passengers = 2, phone_number = "100000003")
 test_user4 = User(uni='test103', max_passengers = 2, phone_number = "100000004")
 
-test_flight1 = Flight(flight_num = "della1", airport = 'JFK', flight_date = 10312018, departure_time = 123000)
-test_flight2 = Flight(flight_num = "della2", airport = 'JFK', flight_date = 10312018, departure_time = 123000)
-test_flight3 = Flight(flight_num = "della3", airport = 'LGA', flight_date = 12252018, departure_time = 124500)
-test_flight4 = Flight(flight_num = "della5", airport = 'LGA', flight_date = 12252018, departure_time = 100000)
-test_flight5 = Flight(flight_num = "della6", airport = 'LGA', flight_date = 12252018, departure_time = 100000)
+test_flight1 = Flight(airport = 'JFK', flight_date = 10312018, departure_time = 123000)
+test_flight2 = Flight(airport = 'JFK', flight_date = 10312018, departure_time = 123000)
+test_flight3 = Flight(airport = 'LGA', flight_date = 12252018, departure_time = 124500)
+test_flight4 = Flight(airport = 'LGA', flight_date = 12252018, departure_time = 100000)
+test_flight5 = Flight(airport = 'LGA', flight_date = 12252018, departure_time = 100000)
 
 
 class TestDatabase(unittest.TestCase):
