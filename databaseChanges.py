@@ -51,5 +51,5 @@ class Flight(db.Model):
     stock = relationship('Match', backref='flight',
                          primaryjoin=id == Match.flight_id)
 
-if __name__ == '__databaseChanges__':
+if __name__ == '__database__':
     app.run(Debug=True)
