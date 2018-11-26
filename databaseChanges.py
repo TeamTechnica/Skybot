@@ -13,39 +13,39 @@ import sys
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///site.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+#db = SQLAlchemy(app)
 
 
-class Match(db.Model):
+class Match(Base):
     __tablename__ = 'match'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, primary_key=True)
-    flight_id = db.Column(db.Integer, db.ForeignKey('flights.id'), primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-    quantity = db.Column(db.Integer)
+    id = Column(.Integer, primary_key=True)
+    #user_id = Column(Integer, primary_key=True)
+    flight_id = Column(Integer, ForeignKey('flights.id'), primary_key=True)
+    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    quantity = Column(Integer)
 
-class User(db.Model):
-    """ SQLAlchemy Users Model """
+class User(Base):
+    """ SQLAlchemy Users Base """
     __tablename__ = 'users'
-    id = db.Column(db.Integer, primary_key=True)
-    uni = db.Column(db.String(80), nullable=False, unique=True)
-    max_passengers = db.Column(db.Integer)
-    phone_number = db.Column(db.String(50), unique = True)
-    verification_code = db.Column(db.Integer)
-    verified = db.Column(db.String(10), default='NONE')
+    id = Column(Integer, primary_key=True)
+    uni = Column(String(80), nullable=False, unique=True)
+    max_passengers = Column(Integer)
+    phone_number = Column(String(50), unique = True)
+    verification_code = Column(Integer)
+    verified = Column(String(10), default='NONE')
 
-    stock = db.relationship('Match', backref='user',
+    stock = relationship('Match', backref='user',
                          primaryjoin=id == Match.user_id)
 
-class Flight(db.Model):
-    """ SQLAlchemy Flights Model """
+class Flight(Base):
+    """ SQLAlchemy Flights Base """
     __tablename__ = 'flights'
-    id = db.Column(db.Integer, primary_key=True)
-    creation_date = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)
-    flight_num = db.Column(db.String(6))
-    airport = db.Column(db.String(3))
-    flight_date =  db.Column(db.Integer)
-    departure_time = db.Column(db.Integer)
+    id = Column(Integer, primary_key=True)
+    creation_date = Column(DateTime(timezone=True), default=datetime.datetime.utcnow)
+    flight_num = Column(String(6))
+    airport = Column(String(3))
+    flight_date =  Column(Integer)
+    departure_time = Column(Integer)
 
 
     stock = relationship('Match', backref='flight',
