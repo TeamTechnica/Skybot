@@ -1,4 +1,4 @@
-# SkyBot in the House
+# SkyBot
 
 Contributors: @joicodes, @lesley2958, @MJDev, @KlarizsaPadilla
 
