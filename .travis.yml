@@ -4,4 +4,9 @@ python:
   - "3.6"
 
 script: 
-  - nosetests -v --with-coverage --cover-html-dir=coverage_docs --cover-html
+  - nosetests -c nose.cfg
+
+after_success:
+  - codecov
+
+
