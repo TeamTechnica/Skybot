@@ -1,6 +1,53 @@
 [run]
 branch = True
 source = .
+omit =
+    test/*
+    */Cookie.py
+    */_LWPCookieJar.py
+    */_MozillaCookieJar.py 
+    */bisect.py
+    */cookielib.py
+    */ctypes/*
+    */decimal.py
+    */encodings/*
+    */python_http_client/*
+    */htmlentitydefs.py
+    */httplib.py
+    */mimetools.py
+    */mimetypes.py
+    */numbers.py
+    */rfc822.py
+    */sqlite3/*
+    */stringprep.py
+    */urllib2.py
+    */uuid.py
+    */fractions.py
+    */hmac.py
+    */jinja2/*
+    */flask_sqlalchemy/*
+    */xml/*
+    */OpenSSL/*
+    */asn1crypto/*
+    */certifi/*
+    */chardet/*
+    */click/*
+    */cryptography/*
+    */enum/*
+    */flask/*
+    */idna/*
+    */ipaddress.py
+    */itsdangerous/*
+    */jinja/*
+    */markupsafe/*
+    */python_http_client/
+    */requests/*
+    */sendgrid/*
+    */six.py
+    */sqlalchemy/*
+    */twilio/*
+    */urllib3/*
+    */werkzeug/*
 
 [report]
 # Regexes for lines to exclude from consideration
@@ -22,6 +69,51 @@ exclude_lines =
 ignore_errors = True
 omit =
     test/*
+    */Cookie.py
+    */_LWPCookieJar.py
+    */_MozillaCookieJar.py 
+    */bisect.py
+    */cookielib.py
+    */ctypes/*
+    */decimal.py
+    */encodings/*
+    */python_http_client/*
+    */htmlentitydefs.py
+    */httplib.py
+    */mimetools.py
+    */mimetypes.py
+    */numbers.py
+    */rfc822.py
+    */sqlite3/*
+    */stringprep.py
+    */urllib2.py
+    */uuid.py
+    */fractions.py
+    */hmac.py
+    */jinja2/*
+    */flask_sqlalchemy/*
+    */xml/*
+    */OpenSSL/*
+    */asn1crypto/*
+    */certifi/*
+    */chardet/*
+    */click/*
+    */cryptography/*
+    */enum/*
+    */flask/*
+    */idna/*
+    */ipaddress.py
+    */itsdangerous/*
+    */jinja/*
+    */markupsafe/*
+    */python_http_client/
+    */requests/*
+    */sendgrid/*
+    */six.py
+    */sqlalchemy/*
+    */twilio/*
+    */urllib3/*
+    */werkzeug/*
 
 [html]
 directory = coverage_html_report
