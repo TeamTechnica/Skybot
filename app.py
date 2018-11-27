@@ -124,7 +124,6 @@ def new_user(phone_number):
     )
     db.session.add(new_user)
     db.session.commit()
-    db.session.close()
 
     # send confirmation message & ask for UNI
     resp = MessagingResponse()
