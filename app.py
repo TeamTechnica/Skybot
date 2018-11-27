@@ -1,18 +1,20 @@
-from flask import Flask, request, redirect
-from twilio.twiml.messaging_response import MessagingResponse
 import random
-from databaseChanges import *
+
 import sendgrid
+from flask import Flask
+from flask import redirect
+from flask import request
+from sendgrid.helpers.mail import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import os
-from sendgrid.helpers.mail import *
+from twilio.twiml.messaging_response import MessagingResponse
+
+from databaseChanges import *
 
 engine = create_engine('sqlite:///site.db')
 Session = sessionmaker(autoflush=True, autocommit=False, bind=engine)
 conn = engine.connect()
 session = Session(bind=conn)
-
 
 
 def parse_flight_info(text_message):
@@ -62,22 +64,23 @@ def send_verify_email(email):
     random_num = random.randint(100000000000, 111111111111)
 
     # commit the random number to user's data for comparison
-    #upd = """"UPDATE User SET verification_code = """ + random_num 
-    #    + """ WHERE phone_number = """ + phone_number + ";"
-    # engine.execute(upd)
+    db.session.query().filter(User.uni == user_uni).update(
+        {"verification_code": random_num},
+    )
 
     content = Content("text/plain", "Verifcation Code: " + str(random_num))
     mail = Mail(from_email, subject, to_email, content)
     response = sg.client.mail.send.post(request_body=mail.get())
 
-
     resp = MessagingResponse()
     resp.message("""Check your email for a verification email
             and text us the code""")
-    db.session.query().filter(User.phone_number == pnumber).update({"verified": "EMAIL_SENT"})
+
+    user_uni = to_email.split("@")[0]
+    db.session.query().filter(User.uni == user_uni).update(
+        {"verfied": "EMAIL_SENT"},
+    )
     return str(resp)
-
-
 
     '''
     if str(response.status_code) != 201:
@@ -96,6 +99,7 @@ def send_verify_email(email):
         return str(resp)
 '''
 
+
 def exist_user(phone_number, body):
     """ Handles communication with existing Skybot users
 
@@ -104,7 +108,8 @@ def exist_user(phone_number, body):
     body -- user's text message
     """
     curr_user = db.session.query(User).filter_by(
-        phone_number=phone_number).first()
+        phone_number=phone_number,
+    ).first()
 
     # if verify state is NONE, call send email function
     if curr_user.verified == 'NONE':
@@ -153,6 +158,7 @@ def sms_reply():
 
     return str(out_message)
 
-#comment
+
+# comment
 if __name__ == "__main__":
     app.run(debug=True)
