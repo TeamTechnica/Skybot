@@ -1,3 +1,4 @@
+import os
 import random
 
 import sendgrid
@@ -56,6 +57,9 @@ def send_verify_email(uni, email):
     Keyword arguments:
     email -- user's email address
     """
+
+    sg = sendgrid.SendGridAPIClient(os.getenv('SENDGRID_TOKEN'))
+
     user_uni = uni
 
     from_email = Email("CUSkyBot@gmail.com")
