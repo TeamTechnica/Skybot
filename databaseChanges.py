@@ -28,7 +28,7 @@ class User(db.Model):
     """ SQLAlchemy Users Model """
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
-    uni = db.Column(db.String(80), nullable=False, unique=True)
+    uni = db.Column(db.String(80))
     max_passengers = db.Column(db.Integer)
     phone_number = db.Column(db.String(50), unique = True)
     verification_code = db.Column(db.Integer)

@@ -13,15 +13,14 @@ Session = sessionmaker(autoflush=True, autocommit=False, bind=engine)
 conn = engine.connect()
 session = Session(bind=conn)
 
-app = Flask(__name__)
 
 
 def parse_flight_info(text_message):
     """ Parses incoming text for flight information """
     # new_flight = Flight()
-    # session.add(new_user)
-    # session.commit()
-    # session.close()
+    # db.session.add(new_user)
+    # db.session.commit()
+    # db.session.close()
     return ""
 
 
@@ -82,7 +81,7 @@ def send_verify_email(email):
         resp.message("""Check your email for a verification email
             and text us the code""")
         # change verified state to EMAIL_SENT
-        # session.query().filter(User.phone_number == pnumber).update({"verified": "EMAIL_SENT"})
+        # db.session.query().filter(User.phone_number == pnumber).update({"verified": "EMAIL_SENT"})
         return str(resp)
 
 
@@ -93,7 +92,7 @@ def exist_user(phone_number, body):
     phone_number -- user's phone number
     body -- user's text message
     """
-    curr_user = session.query(User).filter_by(
+    curr_user = db.session.query(User).filter_by(
         phone_number=phone_number).first()
 
     # if verify state is NONE, call send email function
@@ -116,9 +115,9 @@ def new_user(phone_number):
 
     # create & insert new user into database
     new_user = User(phone_number=phone_number, verified="NONE")
-    session.add(new_user)
-    session.commit()
-    session.close()
+    db.session.add(new_user)
+    db.session.commit()
+    db.session.close()
 
     # send confirmation message & ask for UNI
     resp = MessagingResponse()
@@ -134,8 +133,8 @@ def sms_reply():
     pnumber = request.values.get('From', None)
 
     # checks db for existing user
-    check_num = session.query(User).filter(User.phone_number == pnumber)
-    if session.query(check_num.exists()).scalar() is False:
+    check_num = db.session.query(User).filter(User.phone_number == pnumber)
+    if db.session.query(check_num.exists()).scalar() is False:
         out_message = new_user(pnumber)
     else:
         body = request.values.get('Body', None)
