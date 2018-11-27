@@ -56,17 +56,17 @@ def send_verify_email(uni, email):
     Keyword arguments:
     email -- user's email address
     """
+    user_uni = uni
 
     from_email = Email("CUSkyBot@gmail.com")
     to_email = Email(str(email))
     subject = "Verify Email with SkyBot"
 
     random_num = random.randint(100000000000, 111111111111)
-    user_uni = uni
-    # commit the random number to user's data for comparison
-    db.session.query().filter(User.uni == user_uni).update(
-        {"verification_code": random_num},
-    )
+
+    row = db.session.query(User).filter(User.uni == user_uni).first()
+    row.verification_code = random_num
+    db.session.commit()
 
     content = Content("text/plain", "Verifcation Code: " + str(random_num))
     mail = Mail(from_email, subject, to_email, content)
@@ -76,27 +76,12 @@ def send_verify_email(uni, email):
     resp.message("""Check your email for a verification email
             and text us the code""")
 
-    db.session.query().filter(User.uni == user_uni).update(
-        {"verfied": "EMAIL_SENT"},
-    )
+    # update email verified
+    row = db.session.query(User).filter(User.uni == user_uni).first()
+    row.verified = "EMAIL_SENT"
+    db.session.commit()
+
     return str(resp)
-
-    '''
-    if str(response.status_code) != 201:
-        resp = MessagingResponse()
-
-        resp.message("""Please send your email again,
-            error in sending verfication code""")
-        return str(resp)
-    else:
-        resp = MessagingResponse()
-
-        resp.message("""Check your email for a verification email
-            and text us the code""")
-        # change verified state to EMAIL_SENT
-        # db.session.query().filter(User.phone_number == pnumber).update({"verified": "EMAIL_SENT"})
-        return str(resp)
-'''
 
 
 def exist_user(phone_number, body):
