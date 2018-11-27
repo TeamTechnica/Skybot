@@ -79,6 +79,7 @@ def send_verify_email(email):
         return str(resp)
     else:
         resp = MessagingResponse()
+        # Joi Test here
         resp.message("""Check your email for a verification email
             and text us the code"""+response.status_code)
         # change verified state to EMAIL_SENT
