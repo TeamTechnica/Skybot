@@ -82,7 +82,6 @@ def send_verify_email(uni, email, pnumber):
             and text us the code""")
 
     # update email verified
-    row = db.session.query(User).filter(User.phone_number == pnumber).first()
     row.verified = "EMAIL_SENT"
     db.session.commit()
 
@@ -126,19 +125,13 @@ def exist_user(phone_number, body):
         message = send_verify_email(body, body + "@columbia.edu", phone_number)
     elif curr_user.verified == "EMAIL_SENT" and body == curr_user.verification_code:
         # update verified state to "VERIFIED"
-        row = db.session.query(User).filter(
-            User.phone_number == phone_number,
-        ).first()
-        row.verified = "VERIFIED"
+        curr_user.verified = "VERIFIED"
         db.session.commit()
 
         message = verify()
     elif curr_user.verified == "EMAIL_SENT" and body != curr_user.verification_code:
         # update verified so new email is sent
-        row = db.session.query(User).filter(
-            User.phone_number == phone_number,
-        ).first()
-        row.verified = "NONE"
+        curr_user.verified = "NONE"
         db.session.commit()
 
         message = reverfiy_uni()
