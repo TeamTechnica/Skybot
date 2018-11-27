@@ -118,7 +118,10 @@ def new_user(phone_number):
     """
 
     # create & insert new user into database
-    new_user = User(phone_number=phone_number, verified="NONE")
+    new_user = User(
+        phone_number=phone_number,
+        verified="NONE", verification_code=0,
+    )
     db.session.add(new_user)
     db.session.commit()
     db.session.close()
