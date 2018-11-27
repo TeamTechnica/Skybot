@@ -54,7 +54,7 @@ def send_verify_email(email):
     Keyword arguments:
     email -- user's email address
     """
-    sg = sendgrid.SendGridAPIClient(os.getenv('SENDGRID_TOKEN'))
+    sg = sendgrid.SendGridAPIClient(os.getenv('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'))
 
     from_email = Email("CUSkyBot@gmail.com")
     to_email = Email(str(email))
@@ -71,21 +71,31 @@ def send_verify_email(email):
     mail = Mail(from_email, subject, to_email, content)
     response = sg.client.mail.send.post(request_body=mail.get())
 
+
+    resp = MessagingResponse()
+    resp.message("""Check your email for a verification email
+            and text us the code""")
+    db.session.query().filter(User.phone_number == pnumber).update({"verified": "EMAIL_SENT"})
+    return str(resp)
+
+
+
+    '''
     if str(response.status_code) != 201:
         resp = MessagingResponse()
 
         resp.message("""Please send your email again,
-            error in sending verfication code"""+response.status_code)
+            error in sending verfication code""")
         return str(resp)
     else:
         resp = MessagingResponse()
-        # Joi Test here
+
         resp.message("""Check your email for a verification email
             and text us the code""")
         # change verified state to EMAIL_SENT
         # db.session.query().filter(User.phone_number == pnumber).update({"verified": "EMAIL_SENT"})
         return str(resp)
-
+'''
 
 def exist_user(phone_number, body):
     """ Handles communication with existing Skybot users
