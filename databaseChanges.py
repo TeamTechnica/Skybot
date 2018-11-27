@@ -6,23 +6,22 @@ import datetime
 import sqlalchemy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, ForeignKey
-from sqlalchemy.orm import sessionmaker, relationship
 import sys
+from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy import create_engine
 
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///site.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
+engine = create_engine('sqlite:///tester.db')
+Session = sessionmaker(bind=engine)
+session = Session()
 
+db.drop_all()
+db.create_all()
 
-class Match(db.Model):
-    __tablename__ = 'match'
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, primary_key=True)
-    flight_id = db.Column(db.Integer, db.ForeignKey('flights.id'), primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
-    quantity = db.Column(db.Integer)
 
 class User(db.Model):
     """ SQLAlchemy Users Model """
@@ -31,25 +30,29 @@ class User(db.Model):
     uni = db.Column(db.String(80))
     max_passengers = db.Column(db.Integer)
     phone_number = db.Column(db.String(50), unique = True)
-    verification_code = db.Column(db.Integer)
-    verified = db.Column(db.String(10), default='NONE')
+    flights = relationship("Flight", backref="passenger")
 
-    stock = db.relationship('Match', backref='user',
-                         primaryjoin=id == Match.user_id)
 
 class Flight(db.Model):
     """ SQLAlchemy Flights Model """
     __tablename__ = 'flights'
     id = db.Column(db.Integer, primary_key=True)
-    creation_date = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)
-    flight_num = db.Column(db.String(6))
     airport = db.Column(db.String(3))
     flight_date =  db.Column(db.Integer)
     departure_time = db.Column(db.Integer)
+    passenger_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    match_id = db.Column(db.Integer, db.ForeignKey('matches.id'))
 
 
-    stock = relationship('Match', backref='flight',
-                         primaryjoin=id == Match.flight_id)
+class Match(db.Model):
+    __tablename__ = 'matches'
+    id = db.Column(db.Integer, primary_key=True)
+    airport = db.Column(db.String(3))
+    ride_date =  db.Column(db.Integer)
+    ride_departureTime = db.Column(db.Integer)
+    riders = relationship("Flight", backref="ride")
+
+
 
 if __name__ == '__databaseChanges__':
     app.run(Debug=True)
