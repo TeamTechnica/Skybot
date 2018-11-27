@@ -15,12 +15,12 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///site.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-engine = create_engine('sqlite:///tester.db')
-Session = sessionmaker(bind=engine)
-session = Session()
+# engine = create_engine('sqlite:///testerChanges.db')
+# Session = sessionmaker(bind=engine)
+# session = Session()
 
-db.drop_all()
-db.create_all()
+# db.drop_all()
+# db.create_all()
 
 
 class User(db.Model):
