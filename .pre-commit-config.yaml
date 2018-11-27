@@ -12,7 +12,7 @@ repos:
     -   id: requirements-txt-fixer
     -   id: flake8
 -   repo: git://github.com/marick/pre-commit-hooks
-    sha: a4bfe84e14025ee174a48cbe3069b14f9421efb6
+    rev: a4bfe84e14025ee174a48cbe3069b14f9421efb6
     stages: [commit, push]
     hooks:
     -   id: only-branch-pushes
@@ -36,6 +36,4 @@ repos:
     -   id: add-trailing-comma
 -   repo: meta
     hooks:
-    -   id: check-hooks-apply
     -   id: check-useless-excludes
-
