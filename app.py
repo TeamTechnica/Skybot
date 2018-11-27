@@ -51,7 +51,7 @@ def verify():
     return str(resp)
 
 
-def send_verify_email(uni, email):
+def send_verify_email(uni, email, pnumber):
     """ Sends user verification email
 
     Keyword arguments:
@@ -68,8 +68,9 @@ def send_verify_email(uni, email):
 
     random_num = random.randint(100000000000, 111111111111)
 
-    row = db.session.query(User).filter(User.uni == user_uni).first()
+    row = db.session.query(User).filter(User.phone_number == pnumber).first()
     row.verification_code = random_num
+    row.uni = user_uni
     db.session.commit()
 
     content = Content("text/plain", "Verifcation Code: " + str(random_num))
@@ -81,7 +82,7 @@ def send_verify_email(uni, email):
             and text us the code""")
 
     # update email verified
-    row = db.session.query(User).filter(User.uni == user_uni).first()
+    row = db.session.query(User).filter(User.phone_number == pnumber).first()
     row.verified = "EMAIL_SENT"
     db.session.commit()
 
@@ -101,7 +102,7 @@ def exist_user(phone_number, body):
 
     # if verify state is NONE, call send email function
     if curr_user.verified == 'NONE':
-        message = send_verify_email(body, body + "@columbia.edu")
+        message = send_verify_email(body, body + "@columbia.edu", phone_number)
     elif curr_user.verified == "EMAIL_SENT" and body == curr_user.verification_code:
         # update verified state to "VERIFIED"
         message = verify()
@@ -137,6 +138,11 @@ def sms_reply():
 
     # gets phone number of user
     pnumber = request.values.get('From', None)
+
+    #result = db.session.query(User.verification_code).all()
+    # print("*********************")
+    # print(result)
+    # print("*********************")
 
     # checks db for existing user
     check_num = db.session.query(User).filter(User.phone_number == pnumber)
