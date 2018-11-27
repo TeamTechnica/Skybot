@@ -75,13 +75,13 @@ def send_verify_email(email):
         resp = MessagingResponse()
 
         resp.message("""Please send your email again,
-            error in sending verfication code""")
+            error in sending verfication code"""+response.status_code)
         return str(resp)
     else:
         resp = MessagingResponse()
         # Joi Test here
         resp.message("""Check your email for a verification email
-            and text us the code"""+response.status_code)
+            and text us the code""")
         # change verified state to EMAIL_SENT
         # db.session.query().filter(User.phone_number == pnumber).update({"verified": "EMAIL_SENT"})
         return str(resp)
