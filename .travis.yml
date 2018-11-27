@@ -3,10 +3,9 @@ language: python
 python:
   - "3.6"
 
-script: 
+script:
   - nosetests -c nose.cfg
 
 after_success:
   - codecov
-
-
+  - bash < (curl -s https://codecov.io/bash)
