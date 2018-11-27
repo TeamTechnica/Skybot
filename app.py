@@ -73,13 +73,14 @@ def send_verify_email(email):
 
     if str(response.status_code) != 201:
         resp = MessagingResponse()
+
         resp.message("""Please send your email again,
             error in sending verfication code""")
         return str(resp)
     else:
         resp = MessagingResponse()
         resp.message("""Check your email for a verification email
-            and text us the code""")
+            and text us the code"""+response.status_code)
         # change verified state to EMAIL_SENT
         # db.session.query().filter(User.phone_number == pnumber).update({"verified": "EMAIL_SENT"})
         return str(resp)
