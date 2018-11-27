@@ -1,3 +1,4 @@
+'''
 import sys
 sys.path.append('Skybot/')
 from databaseChanges import *
@@ -48,3 +49,4 @@ for c in session.query(Flight).all():
     print (c.flight_num)
     for a in c.stock:
         print (session.query(User).filter_by(id=a.user_id).all())
+        '''
