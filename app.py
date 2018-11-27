@@ -54,7 +54,6 @@ def send_verify_email(email):
     Keyword arguments:
     email -- user's email address
     """
-    sg = sendgrid.SendGridAPIClient(os.getenv('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'))
 
     from_email = Email("CUSkyBot@gmail.com")
     to_email = Email(str(email))
