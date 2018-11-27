@@ -89,6 +89,27 @@ def send_verify_email(uni, email, pnumber):
     return str(resp)
 
 
+def reverfiy_uni():
+    """
+    Handles the case when wrong verification_code given
+    """
+    resp = MessagingResponse()
+    resp.message("""Sorry the verification_code does not match.
+        Please enter your uni again""")
+    return str(resp)
+
+
+def error():
+    """
+    Error Handler
+    """
+
+    resp = MessagingResponse()
+    resp.message("""Sorry an error has occured, please try again later
+        """)
+    return str(resp)
+
+
 def exist_user(phone_number, body):
     """ Handles communication with existing Skybot users
 
@@ -105,9 +126,24 @@ def exist_user(phone_number, body):
         message = send_verify_email(body, body + "@columbia.edu", phone_number)
     elif curr_user.verified == "EMAIL_SENT" and body == curr_user.verification_code:
         # update verified state to "VERIFIED"
+        row = db.session.query(User).filter(
+            User.phone_number == phone_number,
+        ).first()
+        row.verified = "VERIFIED"
+        db.session.commit()
+
         message = verify()
+    elif curr_user.verified == "EMAIL_SENT" and body != curr_user.verification_code:
+        # update verified so new email is sent
+        row = db.session.query(User).filter(
+            User.phone_number == phone_number,
+        ).first()
+        row.verified = "NONE"
+        db.session.commit()
+
+        message = reverfiy_uni()
     else:
-        message = verify()
+        message = error()
     return message
 
 
