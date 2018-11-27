@@ -3,7 +3,7 @@
 
 import os, sys; sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
-from databaseChanges import *
+from database import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import unittest
@@ -11,14 +11,13 @@ import sqlalchemy
 
 # app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///tester.db'
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-engine = create_engine('sqlite:///tester.db')
+engine = create_engine('sqlite:///tester.db') #Is this line okay?
 Session = sessionmaker(bind=engine)
 session = Session()
 
 # db.drop_all()
 # db.create_all()
 
-engine = sqlalchemy.create_engine('sqlite:///:memory:')
 Base = declarative_base()
 
 # Creates test database instances 
@@ -41,15 +40,15 @@ class TestDatabase(unittest.TestCase):
     
     def test_UserSchema(self):    
         result = str(User)
-        self.assertEqual(result, "<class 'databaseChanges.User'>")
+        self.assertEqual(result, "<class 'database.User'>")
 
     def test_FlightSchema(self):    
         result = str(Flight)
-        self.assertEqual(result, "<class 'databaseChanges.Flight'>")
+        self.assertEqual(result, "<class 'database.Flight'>")
 
     def test_MatchSchema(self):    
         result = str(Match)
-        self.assertEqual(result, "<class 'databaseChanges.Match'>")
+        self.assertEqual(result, "<class 'database.Match'>")
 
     #  Test querying data
     
