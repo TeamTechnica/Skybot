@@ -76,8 +76,7 @@ class TestDatabase(unittest.TestCase):
         db.session.commit()
 
         result = str(Flight.query.all())
-        self.assertEqual(result, "[<Flight 1>, <Flight 2>,
-                                 <Flight 3>, <Flight 4>, <Flight 5>]")
+        self.assertEqual(result, "[<Flight 1>, <Flight 2>, <Flight 3>, <Flight 4>, <Flight 5>]")
 
     # Checks whether existing user's phone number can be found in the db
     def test_UserQuery(self):
