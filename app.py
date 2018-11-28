@@ -210,7 +210,7 @@ def exist_user(phone_number, body):
         message = verify(phone_number, body)
     else:
         message = error()
-    return message
+    return messages
 
 
 def new_user(phone_number):
