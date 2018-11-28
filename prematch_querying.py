@@ -26,7 +26,7 @@ test_user2 = User(id=2, uni='test101', max_passengers=1,
                   verified="isVerified")
 test_user3 = User(id=3, uni='test102', max_passengers=2,
                   phone_number="100000003", verification_code=789,
-                  verified = "isVerified")
+                  verified="isVerified")
 test_user4 = User(id=4, uni='test103', max_passengers=2,
                   phone_number="100000004", verification_code=101,
                   verified="isVerified")
@@ -116,7 +116,8 @@ if (session.query(matches.exists()).scalar()):
     for same in query_matches:
         # flight must be at least one hour before and existing
         # flight but less than four hours earlier
-        if (-40000 < (int(new_flight.departure_time) - int(same.departure_time)) < -10000):
+        if (-40000 < (int(new_flight.departure_time) -
+                      int(same.departure_time)) < -10000):
             timeMatches.append(same)
 
 # print ("Here are the timeMatches: ")
