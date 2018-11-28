@@ -19,20 +19,24 @@ SkyBot aims to provide a simple user interface to connect people in order to mak
 ## Structure
 
 ```bash
-├── .gitignore        # Ignore unneeded Python files
-├── .pylintrc         # Python lint configuration
-├── .travis.yml       # CI Configuration
-├── CONTRIBUTING.md   # Guide to adding to SkyBot
-├── Procfile          # Used when deploying the bot to production
-├── README.md         # This file
-├── app.py            # The main bot code
-├── database.py       # Contains database schemas
-├── requirements.txt  # Libraries used to build the bot
-├── runtime.txt       # Python configuration for Heroku
-├── site.db           # Database for Skybot
-├── SkyBot/           # All supporting code used by app.py
-    ├── test/         # Tests for Skybot
-    ├── templates/    # TO DO
+├── .gitignore                    # Ignore unneeded Python files
+├── .pylintrc                     # Python lint configuration
+├── .travis.yml                   # CI Configuration
+├── CONTRIBUTING.md               # Guide to adding to SkyBot
+├── Procfile                      # Used when deploying the bot to production
+├── README.md                     # This file
+├── app.py                        # The main bot code
+├── databaseChanges.py            # Contains database schemas
+├── requirements.txt              # Libraries used to build the bot
+├── runtime.txt                   # Python configuration for Heroku
+├── site.db                       # Database for Skybot
+├── nose.cfg             		  # TO DO
+├── tester.db                     # TO DO
+├── test/                         # All supporting code used by app.py
+    ├── database_changes_test.py  # TO DO
+    ├── test_app.py               # TO DO
+    ├── test_databases.py         # TO DO
+├── coverage_docs/				  $ TO DO
 ```
 
 ## Technology Stack
