@@ -1,4 +1,4 @@
-from databaseChanges import *
+from database import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import unittest

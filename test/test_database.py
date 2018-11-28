@@ -2,7 +2,7 @@ import os, sys; sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 # import sys
 # sys.path.append('Skybot/')
-from databaseChanges import *
+from database import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import unittest
@@ -42,15 +42,15 @@ class TestDatabase(unittest.TestCase):
     
     def test_UserSchema(self):    
         result = str(User)
-        self.assertEqual(result, "<class 'databaseChanges.User'>")
+        self.assertEqual(result, "<class 'database.User'>")
 
     def test_FlightSchema(self):    
         result = str(Flight)
-        self.assertEqual(result, "<class 'databaseChanges.Flight'>")
+        self.assertEqual(result, "<class 'database.Flight'>")
 
     def test_MatchSchema(self):    
         result = str(Match)
-        self.assertEqual(result, "<class 'databaseChanges.Match'>")
+        self.assertEqual(result, "<class 'database.Match'>")
 
     #  Test querying data
     
