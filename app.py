@@ -28,7 +28,10 @@ def parse_flight_info(text_message):
 
 
 def receive_flight_info():
-    """ Hanldes communication once all needed info is collected """
+    """ Hanldes communication once all needed info is collected
+
+    Returns: TwiML to send to user
+    """
 
     # if verify state is VERIFIED
     resp = MessagingResponse()
@@ -38,8 +41,11 @@ def receive_flight_info():
 
 
 def verify(pnumber):
-    """ Handles initial info collection for flight """
+    """ Handles initial info collection for flight
 
+    Returns: TwiML to send to user
+    """
+    
     # triggered when they send the correct verification code
     resp = MessagingResponse()
 
@@ -83,6 +89,8 @@ def send_verify_email(uni, email, pnumber):
 
     Keyword arguments:
     email -- user's email address
+
+    Returns: TwiML to send to user
     """
 
     sg = sendgrid.SendGridAPIClient(os.getenv('SENDGRID_TOKEN'))
@@ -118,6 +126,8 @@ def send_verify_email(uni, email, pnumber):
 def reverfiy_uni():
     """
     Handles the case when wrong verification_code given
+
+    Returns: TwiML to send to user
     """
     resp = MessagingResponse()
     resp.message("""Sorry the verification_code does not match.
@@ -128,6 +138,8 @@ def reverfiy_uni():
 def error():
     """
     Error Handler
+
+    Returns: TwiML to send to user
     """
 
     resp = MessagingResponse()
@@ -142,6 +154,8 @@ def exist_user(phone_number, body):
     Keyword arguments:
     phone_number -- user's phone number
     body -- user's text message
+
+    Returns: TwiML to send to user
     """
     curr_user = db.session.query(User).filter_by(
         phone_number=phone_number,
@@ -174,6 +188,8 @@ def new_user(phone_number):
 
     Keyword arguments:
     phone_number -- user's phone number
+
+    Returns: TwiML to send to user
     """
 
     # create & insert new user into database
@@ -192,7 +208,10 @@ def new_user(phone_number):
 
 @app.route("/sms", methods=['GET', 'POST'])
 def sms_reply():
-    """ Handles text communication with users """
+    """ Handles text communication with users
+
+    Returns: TwiML to send to user
+    """
 
     # gets phone number of user
     pnumber = request.values.get('From', None)
@@ -218,6 +237,5 @@ def sms_reply():
     return str(out_message)
 
 
-# comment
 if __name__ == "__main__":
     app.run(debug=True)
