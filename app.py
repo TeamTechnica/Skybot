@@ -40,20 +40,47 @@ def receive_flight_info():
     return str(resp)
 
 
-def verify():
+def verify(pnumber):
     """ Handles initial info collection for flight
 
     Returns: TwiML to send to user
     """
-
+    
     # triggered when they send the correct verification code
     resp = MessagingResponse()
-    resp.message("""Thanks for verifying! Let's get started with your
-        flight information. Please answer the following, separated by commas:
-        1. JFK/LGA/EWR
-        2. Date (MM/DD/YYYY)
-        3. Flight Time (XX:XX AM/PM)
-        4. Maximum Number of Additional Passengers""")
+
+    row = db.session.query(User).filter(User.phone_number == pnumber).first()
+
+    if str(row.verified) == "VERIFIED":
+        resp.message("""Thanks for verifying! Let's get started with your
+        flight information. Please enter the Airport
+        JFK/LGA/EQR""")
+
+        row.verified = "AIRPORT_INFO"
+        db.session.commit()
+    elif str(row.verified) == "AIRPORT_INFO":
+        resp.message("""Please enter Date of Flight Departure in following format
+            MM/DD/YYYY""")
+
+        row.verified = "DATE_INFO"
+        db.session.commit()
+    elif str(row.verified) == "DATE_INFO":
+        resp.message("""Please enter flight time in following format
+            (XX:XX AM/PM)""")
+
+        row.verified = "FLIGHT_TIME"
+        db.session.commit()
+    elif str(row.verified) == "FLIGHT_TIME":
+        resp.message("""Last thing, please enter the max number of passengers you're willing
+            to ride with as a number. Ex. 2""")
+
+        row.verified = "FINISHED"
+        db.session.commit()
+    elif str(row.verified) == "FINISHED":
+        resp.message(
+            """Thanks! Give me a moment while I find some matches !""",
+        )
+
     return str(resp)
 
 
@@ -142,13 +169,15 @@ def exist_user(phone_number, body):
         curr_user.verified = "VERIFIED"
         db.session.commit()
 
-        message = verify()
+        message = verify(phone_number)
     elif curr_user.verified == "EMAIL_SENT" and int(body) != curr_user.verification_code:
         # update verified so new email is sent
         curr_user.verified = "NONE"
         db.session.commit()
 
         message = reverfiy_uni()
+    elif str(curr_user.verified) in ["VERIFIED", "AIRPORT_INFO", "FLIGHT_TIME", "DATE_INFO", "FINISHED"]:
+        message = verify(phone_number)
     else:
         message = error()
     return message
