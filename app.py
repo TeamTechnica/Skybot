@@ -45,7 +45,7 @@ def verify(pnumber):
 
     Returns: TwiML to send to user
     """
-    
+
     # triggered when they send the correct verification code
     resp = MessagingResponse()
 
@@ -235,6 +235,65 @@ def sms_reply():
         out_message = exist_user(pnumber, body)
 
     return str(out_message)
+
+
+def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport):
+    current_user = cur_user
+    current_fltDate = cur_fltDate
+    current_fltTime = cur_fltTime
+    current_airport = cur_airport
+
+    # Queries for the first match based on flight date, time and aiport
+    matched_flight = (Flight.query.filter(
+        Flight.flight_date == current_fltDate, Flight.departure_time ==
+        current_fltTime, Flight.airport == current_airport,
+    )).first()  # getting all flights with the same departure date
+    print(matched_flight)
+
+    if matched_flight == None:
+        # Adds the users flight data to the database after querying (avoids matching with itself)
+        user_flight_data = Flight(
+            airport=current_airport, flight_date=current_fltDate,
+            departure_time=current_fltTime, passenger=current_user,
+        )
+        db.session.add(user_flight_data)
+        db.session.commit()
+
+        print("There are currently no matches, but we will keep searching!")
+    else:
+
+        user_flight_data = Flight(
+            airport=current_airport, flight_date=current_fltDate,
+            departure_time=current_fltTime, passenger=current_user,
+        )
+        db.session.add(user_flight_data)
+        db.session.commit()
+
+        match_airport = current_airport
+        match_date = current_fltDate
+
+        # Finds the rider with the earliest departure time and subtracts two hours
+        match_departTime = str(
+            (min(int(current_fltTime), int(matched_flight.departure_time))) - 20000,
+        )
+
+        # Creates new match instance
+        new_match = Match(
+            airport=match_airport, ride_date=match_date,
+            ride_departureTime=match_departTime,
+        )
+        db.session.add(new_match)
+        db.session.commit()
+
+        # Add match to the flight
+        user_flight_data.ride = new_match
+        matched_flight.ride = new_match
+
+        # Message are sent to users
+        print("this is the uni of your rideshare match: ")
+
+        for riderss in new_match.riders:
+            print(riderss.passenger.uni)
 
 
 if __name__ == "__main__":
