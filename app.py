@@ -2,6 +2,7 @@ import os
 import random
 
 import sendgrid
+from database import *
 from flask import Flask
 from flask import redirect
 from flask import request
@@ -10,12 +11,15 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from twilio.twiml.messaging_response import MessagingResponse
 
-from database import *
-
 engine = create_engine('sqlite:///site.db')
 Session = sessionmaker(autoflush=True, autocommit=False, bind=engine)
 conn = engine.connect()
 session = Session(bind=conn)
+
+# variables for matching
+cur_fltDate = None
+cur_fltTime = None
+cur_airport = None
 
 
 def parse_flight_info(text_message):
@@ -40,12 +44,32 @@ def receive_flight_info():
     return str(resp)
 
 
-def verify(pnumber):
+def send_matches(match_list):
+    """Handles returning matching unis to user
+
+    Returns: TwiML to send to user
+    """
+    resp = MessagingResponse()
+    unis = ""
+
+    if len(match_list) == 0:
+        resp.message("""Sorry I was not able to find any matches.
+            I will keep looking though!""")
+    else:
+        for uni in match_list:
+            unis = unis + uni + " "
+        reply = "Your matches are" + unis + ". Have a great day!"
+        resp.message(reply)
+
+    return resp
+
+
+def verify(pnumber, body):
     """ Handles initial info collection for flight
 
     Returns: TwiML to send to user
     """
-
+    global cur_fltDate, cur_fltTime, cur_airport
     # triggered when they send the correct verification code
     resp = MessagingResponse()
 
@@ -60,26 +84,30 @@ def verify(pnumber):
         db.session.commit()
     elif str(row.verified) == "AIRPORT_INFO":
         resp.message("""Please enter Date of Flight Departure in following format
-            MM/DD/YYYY""")
+            MM/DD/YY""")
 
+        cur_airport = str(body)
         row.verified = "DATE_INFO"
         db.session.commit()
     elif str(row.verified) == "DATE_INFO":
         resp.message("""Please enter flight time in following format
             (XX:XX AM/PM)""")
 
+        flt_date = str(body)
+        cur_fltDate = int(flt_date.replace('/', ''))
         row.verified = "FLIGHT_TIME"
         db.session.commit()
     elif str(row.verified) == "FLIGHT_TIME":
         resp.message("""Last thing, please enter the max number of passengers you're willing
             to ride with as a number. Ex. 2""")
 
+        cur_fltTime = int(body)
         row.verified = "FINISHED"
         db.session.commit()
     elif str(row.verified) == "FINISHED":
-        resp.message(
-            """Thanks! Give me a moment while I find some matches !""",
-        )
+
+        matches = matchFound(row, cur_fltDate, cur_fltTime, cur_airport)
+        resp = send_matches(matches)
 
     return str(resp)
 
@@ -169,7 +197,7 @@ def exist_user(phone_number, body):
         curr_user.verified = "VERIFIED"
         db.session.commit()
 
-        message = verify(phone_number)
+        message = verify(phone_number, body)
     elif curr_user.verified == "EMAIL_SENT" and int(body) != curr_user.verification_code:
         # update verified so new email is sent
         curr_user.verified = "NONE"
@@ -177,10 +205,10 @@ def exist_user(phone_number, body):
 
         message = reverfiy_uni()
     elif str(curr_user.verified) in ["VERIFIED", "AIRPORT_INFO", "FLIGHT_TIME", "DATE_INFO", "FINISHED"]:
-        message = verify(phone_number)
+        message = verify(phone_number, body)
     else:
         message = error()
-    return message
+    return messages
 
 
 def new_user(phone_number):
@@ -243,6 +271,8 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport):
     current_fltTime = cur_fltTime
     current_airport = cur_airport
 
+    match_list = []
+
     # Queries for the first match based on flight date, time and aiport
     matched_flight = (Flight.query.filter(
         Flight.flight_date == current_fltDate, Flight.departure_time ==
@@ -259,7 +289,6 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport):
         db.session.add(user_flight_data)
         db.session.commit()
 
-        print("There are currently no matches, but we will keep searching!")
     else:
 
         user_flight_data = Flight(
@@ -289,11 +318,10 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport):
         user_flight_data.ride = new_match
         matched_flight.ride = new_match
 
-        # Message are sent to users
-        print("this is the uni of your rideshare match: ")
-
         for riderss in new_match.riders:
-            print(riderss.passenger.uni)
+            match_list.append(str(riderss.passenger.uni))
+
+        return match_list
 
 
 if __name__ == "__main__":
