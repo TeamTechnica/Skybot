@@ -123,13 +123,13 @@ def exist_user(phone_number, body):
     # if verify state is NONE, call send email function
     if curr_user.verified == 'NONE':
         message = send_verify_email(body, body + "@columbia.edu", phone_number)
-    elif curr_user.verified == "EMAIL_SENT" and body == curr_user.verification_code:
+    elif curr_user.verified == "EMAIL_SENT" and int(body) == curr_user.verification_code:
         # update verified state to "VERIFIED"
         curr_user.verified = "VERIFIED"
         db.session.commit()
 
         message = verify()
-    elif curr_user.verified == "EMAIL_SENT" and body != curr_user.verification_code:
+    elif curr_user.verified == "EMAIL_SENT" and int(body) != curr_user.verification_code:
         # update verified so new email is sent
         curr_user.verified = "NONE"
         db.session.commit()
@@ -169,6 +169,11 @@ def sms_reply():
     pnumber = request.values.get('From', None)
 
     #result = db.session.query(User.verification_code).all()
+    # print("*********************")
+    # print(result)
+    # print("*********************")
+
+    #result = db.session.query(User.uni).all()
     # print("*********************")
     # print(result)
     # print("*********************")
