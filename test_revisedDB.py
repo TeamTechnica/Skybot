@@ -57,7 +57,7 @@ if matched_flight is None:
     print("There are currently no matches, but we will keep searching!")
 else:
     user_flight_data = Flight(airport=current_airport,
-                              flight_date=current_fltDate
+                              flight_date=current_fltDate,
                               departure_time=current_fltTime,
                               passenger=current_user)
     db.session.add(user_flight_data)
