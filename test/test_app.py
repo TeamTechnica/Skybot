@@ -1,7 +1,7 @@
 import unittest
 import requests
 import random
-import app
+#import app
 import xml.etree.ElementTree as ET
 from twilio.rest import Client
 
