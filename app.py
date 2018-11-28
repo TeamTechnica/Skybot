@@ -23,28 +23,6 @@ cur_fltTime = None
 cur_airport = None
 
 
-def parse_flight_info(text_message):
-    """ Parses incoming text for flight information """
-    # new_flight = Flight()
-    # db.session.add(new_user)
-    # db.session.commit()
-    # db.session.close()
-    return ""
-
-
-def receive_flight_info():
-    """ Hanldes communication once all needed info is collected
-
-    Returns: TwiML to send to user
-    """
-
-    # if verify state is VERIFIED
-    resp = MessagingResponse()
-    resp.message("""Thank you for the information!
-        We'll notify you as soon as we have a match""")
-    return str(resp)
-
-
 def send_matches(match_list):
     """Handles returning matching unis to user
 
