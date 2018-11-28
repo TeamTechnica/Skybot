@@ -168,12 +168,12 @@ def sms_reply():
     # gets phone number of user
     pnumber = request.values.get('From', None)
 
-    #result = db.session.query(User.verification_code).all()
+    # result = db.session.query(User.verification_code).all()
     # print("*********************")
     # print(result)
     # print("*********************")
 
-    #result = db.session.query(User.uni).all()
+    # result = db.session.query(User.uni).all()
     # print("*********************")
     # print(result)
     # print("*********************")
