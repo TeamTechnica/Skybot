@@ -24,7 +24,6 @@ cur_fltTime = None
 cur_airport = None
 
 # variable for uni integrity checking
-valid_uni = False
 uni_entered = False
 
 
@@ -193,7 +192,7 @@ def exist_user(phone_number, body):
         message = verify(phone_number, body)
     else:
         message = error()
-    return messages
+    return message
 
 
 def new_user(phone_number):
@@ -222,9 +221,14 @@ def new_user(phone_number):
 
 
 def check_uni(body):
+    """
+    Handles checking if uni is valid or not
+
+    Returns: True or False depending on valid uni
+    """
     valid_uni = True
 
-    uni_chars = re.sub("\D", '', body)
+    uni_chars = re.sub("[0-9]", '', body)
     if len(uni_chars) < 2 or len(uni_chars) > 3:
         valid_uni = False
 
@@ -235,13 +239,25 @@ def check_uni(body):
     return valid_uni
 
 
+def remove_user(pnumber):
+    """
+    Handles removing a user from table
+
+    Returns nothing, removes user from DB
+    """
+    user = User.query.filter_by(phone_number=str(pnumber)).first()
+    if user is not None:
+        db.session.delete(user)
+        db.session.commit()
+
+
 @app.route("/sms", methods=['GET', 'POST'])
 def sms_reply():
     """ Handles text communication with users
 
     Returns: TwiML to send to user
     """
-
+    global uni_entered
     # gets phone number of user
     pnumber = request.values.get('From', None)
 
@@ -264,8 +280,9 @@ def sms_reply():
         if uni_entered == True:
             uni_entered = False
             valid = check_uni(body)
-            if valid_uni == False:
-                return error
+            if valid == False:
+                remove_user(pnumber)
+                return str(error())
 
         out_message = exist_user(pnumber, body)
 
