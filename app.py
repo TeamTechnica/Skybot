@@ -3,7 +3,6 @@ import random
 import re
 
 import sendgrid
-from database import *
 from flask import Flask
 from flask import redirect
 from flask import request
@@ -11,6 +10,8 @@ from sendgrid.helpers.mail import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from twilio.twiml.messaging_response import MessagingResponse
+
+from database import *
 
 engine = create_engine('sqlite:///site.db')
 Session = sessionmaker(autoflush=True, autocommit=False, bind=engine)
@@ -21,6 +22,9 @@ session = Session(bind=conn)
 cur_fltDate = None
 cur_fltTime = None
 cur_airport = None
+
+# variable for uni integrity checking
+uni_entered = False
 
 
 def send_matches(match_list):
@@ -188,7 +192,7 @@ def exist_user(phone_number, body):
         message = verify(phone_number, body)
     else:
         message = error()
-    return messages
+    return message
 
 
 def new_user(phone_number):
@@ -199,7 +203,9 @@ def new_user(phone_number):
 
     Returns: TwiML to send to user
     """
+    global uni_entered
 
+    uni_entered = True
     # create & insert new user into database
     new_user = User(
         phone_number=phone_number,
@@ -214,13 +220,44 @@ def new_user(phone_number):
     return str(resp)
 
 
+def check_uni(body):
+    """
+    Handles checking if uni is valid or not
+
+    Returns: True or False depending on valid uni
+    """
+    valid_uni = True
+
+    uni_chars = re.sub("[0-9]", '', body)
+    if len(uni_chars) < 2 or len(uni_chars) > 3:
+        valid_uni = False
+
+    uni_int = re.sub("[a-zA-Z]", "", body)
+    if len(uni_int) != 4:
+        valid_uni = False
+
+    return valid_uni
+
+
+def remove_user(pnumber):
+    """
+    Handles removing a user from table
+
+    Returns nothing, removes user from DB
+    """
+    user = User.query.filter_by(phone_number=str(pnumber)).first()
+    if user is not None:
+        db.session.delete(user)
+        db.session.commit()
+
+
 @app.route("/sms", methods=['GET', 'POST'])
 def sms_reply():
     """ Handles text communication with users
 
     Returns: TwiML to send to user
     """
-
+    global uni_entered
     # gets phone number of user
     pnumber = request.values.get('From', None)
 
@@ -240,6 +277,13 @@ def sms_reply():
         out_message = new_user(pnumber)
     else:
         body = request.values.get('Body', None)
+        if uni_entered == True:
+            uni_entered = False
+            valid = check_uni(body)
+            if valid == False:
+                remove_user(pnumber)
+                return str(error())
+
         out_message = exist_user(pnumber, body)
 
     return str(out_message)
