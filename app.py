@@ -3,7 +3,6 @@ import random
 import re
 
 import sendgrid
-from database import *
 from flask import Flask
 from flask import redirect
 from flask import request
@@ -11,6 +10,8 @@ from sendgrid.helpers.mail import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from twilio.twiml.messaging_response import MessagingResponse
+
+from database import *
 
 engine = create_engine('sqlite:///site.db')
 Session = sessionmaker(autoflush=True, autocommit=False, bind=engine)
@@ -21,6 +22,10 @@ session = Session(bind=conn)
 cur_fltDate = None
 cur_fltTime = None
 cur_airport = None
+
+# variable for uni integrity checking
+valid_uni = False
+uni_entered = False
 
 
 def send_matches(match_list):
@@ -199,7 +204,9 @@ def new_user(phone_number):
 
     Returns: TwiML to send to user
     """
+    global uni_entered
 
+    uni_entered = True
     # create & insert new user into database
     new_user = User(
         phone_number=phone_number,
@@ -212,6 +219,20 @@ def new_user(phone_number):
     resp = MessagingResponse()
     resp.message("Welcome to Skybot! What's your UNI?")
     return str(resp)
+
+
+def check_uni(body):
+    valid_uni = True
+
+    uni_chars = re.sub("\D", '', body)
+    if len(uni_chars) < 2 or len(uni_chars) > 3:
+        valid_uni = False
+
+    uni_int = re.sub("[a-zA-Z]", "", body)
+    if len(uni_int) != 4:
+        valid_uni = False
+
+    return valid_uni
 
 
 @app.route("/sms", methods=['GET', 'POST'])
@@ -240,6 +261,12 @@ def sms_reply():
         out_message = new_user(pnumber)
     else:
         body = request.values.get('Body', None)
+        if uni_entered == True:
+            uni_entered = False
+            valid = check_uni(body)
+            if valid_uni == False:
+                return error
+
         out_message = exist_user(pnumber, body)
 
     return str(out_message)
