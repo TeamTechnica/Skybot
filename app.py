@@ -113,7 +113,7 @@ def send_verify_email(uni, email, pnumber):
     to_email = Email(str(email))
     subject = "Verify Email with SkyBot"
 
-    random_num = random.randint(100000000000, 111111111111)
+    random_num = random.randint(100000, 111111)
 
     row = db.session.query(User).filter(User.phone_number == pnumber).first()
     row.verification_code = random_num
@@ -147,7 +147,7 @@ def reverfiy_uni():
     return str(resp)
 
 
-def error():
+def error(message):
     """
     Error Handler
 
@@ -155,8 +155,8 @@ def error():
     """
 
     resp = MessagingResponse()
-    resp.message("""Sorry an error has occured, please try again later
-        """)
+    error_message = "Error: " + str(message)
+    resp.message(error_message)
     return str(resp)
 
 
@@ -191,7 +191,7 @@ def exist_user(phone_number, body):
     elif str(curr_user.verified) in ["VERIFIED", "AIRPORT_INFO", "FLIGHT_TIME", "DATE_INFO", "FINISHED"]:
         message = verify(phone_number, body)
     else:
-        message = error()
+        message = error("Something unexpected happened, please try later")
     return message
 
 
@@ -261,11 +261,6 @@ def sms_reply():
     # gets phone number of user
     pnumber = request.values.get('From', None)
 
-    result = db.session.query(User.verification_code).all()
-    print("*********************")
-    print(result)
-    print("*********************")
-
     result = db.session.query(User.uni).all()
     print("*********************")
     print(result)
@@ -282,7 +277,7 @@ def sms_reply():
             valid = check_uni(body)
             if valid == False:
                 remove_user(pnumber)
-                return str(error())
+                return str(error("Invalid uni!"))
 
         out_message = exist_user(pnumber, body)
 
