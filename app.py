@@ -82,6 +82,27 @@ def parse_date(date_entry):
         return valid, date_str
 
 
+def parse_time(body):
+    """
+    Handles checking valid date entry
+
+    Returns: Boolean if valid and date string for matching
+    if valid
+    """
+    valid = True
+    time_ent = body
+    if (
+        len(time_ent) < 6 or len(time_ent) > 6 or int(time_ent[0:2]) > 24 or int(time_ent[0:2]) < 1 or
+        int(time_ent[2:4]) < 1 or int(time_ent[2:4]) > 60 or int(
+            time_ent[4:6],
+        ) < 1 or int(time_ent[4:6]) > 60
+    ):
+        valid = False
+        return valid, ""
+    else:
+        return valid, time_ent
+
+
 def verify(pnumber, body):
     """ Handles initial info collection for flight
 
@@ -114,21 +135,26 @@ def verify(pnumber, body):
         valid, str_date = parse_date(body)
         if valid == True:
             cur_fltDate = int(str_date)
-            resp.message("""Please enter flight time in following format
-                (XX:XX AM/PM)""")
+            resp.message("""Please enter flight time in following Military time format
+                HHMMSS""")
             row.verified = "FLIGHT_TIME"
             db.session.commit()
         else:
             resp.message("""Incorrect Format. Please enter in following format
                 MM-DD-YYYY""")
     elif str(row.verified) == "FLIGHT_TIME":
-        resp.message("""Last thing, please enter the max number of passengers you're willing
+        valid, str_time = parse_time(body)
+        if valid == True:
+            resp.message("""Last thing, please enter the max number of passengers you're willing
             to ride with as a number. Ex. 2""")
 
-        fltTime_stripped = body.replace('/', '').replace(':', '')
-        cur_fltTime = int(re.sub("\D", '', fltTime_stripped))
-        row.verified = "FINISHED"
-        db.session.commit()
+            cur_fltTime = int(str_time)
+            row.verified = "FINISHED"
+            db.session.commit()
+        else:
+            resp.message(
+                """Incorrect Format. Please enter in milliary format HHMMSS""",
+            )
     elif str(row.verified) == "FINISHED":
 
         matches = matchFound(row, cur_fltDate, cur_fltTime, cur_airport)
