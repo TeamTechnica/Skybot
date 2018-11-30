@@ -26,6 +26,8 @@ cur_airport = None
 # variable for uni integrity checking
 uni_entered = False
 
+airports = ["JFK", "LGA", "EWR"]
+
 
 def send_matches(match_list):
     """Handles returning matching unis to user
@@ -52,7 +54,7 @@ def verify(pnumber, body):
 
     Returns: TwiML to send to user
     """
-    global cur_fltDate, cur_fltTime, cur_airport
+    global cur_fltDate, cur_fltTime, cur_airport, airports
     # triggered when they send the correct verification code
     resp = MessagingResponse()
 
@@ -61,17 +63,20 @@ def verify(pnumber, body):
     if str(row.verified) == "VERIFIED":
         resp.message("""Thanks for verifying! Let's get started with your
         flight information. Please enter the Airport
-        JFK/LGA/EQR""")
+        (1)JFK (2)LGA (3)EQR""")
 
         row.verified = "AIRPORT_INFO"
         db.session.commit()
     elif str(row.verified) == "AIRPORT_INFO":
-        resp.message("""Please enter Date of Flight Departure in following format
-            MM/DD/YY""")
-
-        cur_airport = str(body)
-        row.verified = "DATE_INFO"
-        db.session.commit()
+        if int(body) < 1 or int(body) > 3:
+            resp.message("""Incorrect Format. Please enter 1 for JFK, 2 for
+                LGA or 3 for EWR""")
+        else:
+            resp.message("""Please enter Date of Flight Departure in following format
+                MM/DD/YY""")
+            cur_airport = str(airports[int(body) - 1])
+            row.verified = "DATE_INFO"
+            db.session.commit()
     elif str(row.verified) == "DATE_INFO":
         resp.message("""Please enter flight time in following format
             (XX:XX AM/PM)""")
