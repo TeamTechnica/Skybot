@@ -103,6 +103,23 @@ def parse_time(body):
         return valid, time_ent
 
 
+def parse_max(body):
+    """
+    Handles checking valid time entry
+
+    Returns: Boolean if valid and time string for matching
+    if valid
+    """
+    valid = True
+    max_entry = body
+
+    if int(max_entry) > 2 or int(max_entry) < 1:
+        valid = False
+        return valid, ""
+    else:
+        return valid, max_entry
+
+
 def verify(pnumber, body):
     """ Handles initial info collection for flight
 
@@ -156,9 +173,14 @@ def verify(pnumber, body):
                 """Incorrect Format. Please enter in milliary format HHMMSS""",
             )
     elif str(row.verified) == "FINISHED":
-
-        matches = matchFound(row, cur_fltDate, cur_fltTime, cur_airport)
-        resp = send_matches(matches)
+        valid, str_max = parse_max(body)
+        if valid == True:
+            matches = matchFound(row, cur_fltDate, cur_fltTime, cur_airport)
+            resp = send_matches(matches)
+        else:
+            resp.message(
+                """Error, you can only enter between 1-2 passengers""",
+            )
 
     return str(resp)
 
@@ -327,11 +349,6 @@ def sms_reply():
     global uni_entered
     # gets phone number of user
     pnumber = request.values.get('From', None)
-
-    result = db.session.query(User.uni).all()
-    # print("*********************")
-    # print(result)
-    # print("*********************")
 
     # checks db for existing user
     check_num = db.session.query(User).filter(User.phone_number == pnumber)
