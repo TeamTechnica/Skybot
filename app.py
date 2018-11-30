@@ -1,3 +1,4 @@
+import datetime
 import os
 import random
 import re
@@ -49,6 +50,38 @@ def send_matches(match_list):
     return resp
 
 
+def parse_date(date_entry):
+    """
+    Handles checking valid date entry
+
+    Returns: Boolean if valid and date string for matching
+    if valid
+    """
+    valid = True
+    cur_date = datetime.datetime.now()
+    flt_date = str(date_entry)
+
+    if re.match(r"[0-9]*-[0-9]*-[0-9]*", flt_date) != None:
+        date_str = flt_date.replace('-', '')
+    else:
+        valid = False
+        return valid, ""
+
+    entry_date = datetime.datetime(
+        int(date_str[4:8]), int(date_str[0:2]), int(date_str[2:4]),
+    )
+    if (
+        len(date_str) > 8 or len(date_str) < 1 or int(date_str[0:2]) < 0 or int(date_str[0:2]) > 12 or
+        int(date_str[2:4]) < 1 or int(
+            date_str[2:4],
+        ) > 31 or entry_date < cur_date
+    ):
+        valid = False
+        return valid, ""
+    else:
+        return valid, date_str
+
+
 def verify(pnumber, body):
     """ Handles initial info collection for flight
 
@@ -73,18 +106,21 @@ def verify(pnumber, body):
                 LGA or 3 for EWR""")
         else:
             resp.message("""Please enter Date of Flight Departure in following format
-                MM/DD/YY""")
+                MM-DD-YYYY""")
             cur_airport = str(airports[int(body) - 1])
             row.verified = "DATE_INFO"
             db.session.commit()
     elif str(row.verified) == "DATE_INFO":
-        resp.message("""Please enter flight time in following format
-            (XX:XX AM/PM)""")
-
-        flt_date = str(body)
-        cur_fltDate = int(flt_date.replace('/', ''))
-        row.verified = "FLIGHT_TIME"
-        db.session.commit()
+        valid, str_date = parse_date(body)
+        if valid == True:
+            cur_fltDate = int(str_date)
+            resp.message("""Please enter flight time in following format
+                (XX:XX AM/PM)""")
+            row.verified = "FLIGHT_TIME"
+            db.session.commit()
+        else:
+            resp.message("""Incorrect Format. Please enter in following format
+                MM-DD-YYYY""")
     elif str(row.verified) == "FLIGHT_TIME":
         resp.message("""Last thing, please enter the max number of passengers you're willing
             to ride with as a number. Ex. 2""")
@@ -267,9 +303,9 @@ def sms_reply():
     pnumber = request.values.get('From', None)
 
     result = db.session.query(User.uni).all()
-    print("*********************")
-    print(result)
-    print("*********************")
+    # print("*********************")
+    # print(result)
+    # print("*********************")
 
     # checks db for existing user
     check_num = db.session.query(User).filter(User.phone_number == pnumber)
