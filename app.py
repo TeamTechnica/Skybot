@@ -1,3 +1,4 @@
+import datetime
 import os
 import random
 import re
@@ -26,6 +27,8 @@ cur_airport = None
 # variable for uni integrity checking
 uni_entered = False
 
+airports = ["JFK", "LGA", "EWR"]
+
 
 def send_matches(match_list):
     """Handles returning matching unis to user
@@ -47,12 +50,82 @@ def send_matches(match_list):
     return resp
 
 
+def parse_date(date_entry):
+    """
+    Handles checking valid date entry
+
+    Returns: Boolean if valid and date string for matching
+    if valid
+    """
+    valid = True
+    cur_date = datetime.datetime.now()
+    flt_date = str(date_entry)
+
+    if re.match(r"[0-9]*-[0-9]*-[0-9]*", flt_date) != None:
+        date_str = flt_date.replace('-', '')
+    else:
+        valid = False
+        return valid, ""
+
+    entry_date = datetime.datetime(
+        int(date_str[4:8]), int(date_str[0:2]), int(date_str[2:4]),
+    )
+    if (
+        len(date_str) > 8 or len(date_str) < 1 or int(date_str[0:2]) < 0 or int(date_str[0:2]) > 12 or
+        int(date_str[2:4]) < 1 or int(
+            date_str[2:4],
+        ) > 31 or entry_date < cur_date
+    ):
+        valid = False
+        return valid, ""
+    else:
+        return valid, date_str
+
+
+def parse_time(body):
+    """
+    Handles checking valid date entry
+
+    Returns: Boolean if valid and date string for matching
+    if valid
+    """
+    valid = True
+    time_ent = body
+    if (
+        len(time_ent) < 6 or len(time_ent) > 6 or int(time_ent[0:2]) > 24 or int(time_ent[0:2]) < 1 or
+        int(time_ent[2:4]) < 1 or int(time_ent[2:4]) > 60 or int(
+            time_ent[4:6],
+        ) < 1 or int(time_ent[4:6]) > 60
+    ):
+        valid = False
+        return valid, ""
+    else:
+        return valid, time_ent
+
+
+def parse_max(body):
+    """
+    Handles checking valid time entry
+
+    Returns: Boolean if valid and time string for matching
+    if valid
+    """
+    valid = True
+    max_entry = body
+
+    if int(max_entry) > 2 or int(max_entry) < 1:
+        valid = False
+        return valid, ""
+    else:
+        return valid, max_entry
+
+
 def verify(pnumber, body):
     """ Handles initial info collection for flight
 
     Returns: TwiML to send to user
     """
-    global cur_fltDate, cur_fltTime, cur_airport
+    global cur_fltDate, cur_fltTime, cur_airport, airports
     # triggered when they send the correct verification code
     resp = MessagingResponse()
 
@@ -61,37 +134,53 @@ def verify(pnumber, body):
     if str(row.verified) == "VERIFIED":
         resp.message("""Thanks for verifying! Let's get started with your
         flight information. Please enter the Airport
-        JFK/LGA/EQR""")
+        (1)JFK (2)LGA (3)EQR""")
 
         row.verified = "AIRPORT_INFO"
         db.session.commit()
     elif str(row.verified) == "AIRPORT_INFO":
-        resp.message("""Please enter Date of Flight Departure in following format
-            MM/DD/YY""")
-
-        cur_airport = str(body)
-        row.verified = "DATE_INFO"
-        db.session.commit()
+        if int(body) < 1 or int(body) > 3:
+            resp.message("""Incorrect Format. Please enter 1 for JFK, 2 for
+                LGA or 3 for EWR""")
+        else:
+            resp.message("""Please enter Date of Flight Departure in following format
+                MM-DD-YYYY""")
+            cur_airport = str(airports[int(body) - 1])
+            row.verified = "DATE_INFO"
+            db.session.commit()
     elif str(row.verified) == "DATE_INFO":
-        resp.message("""Please enter flight time in following format
-            (XX:XX AM/PM)""")
-
-        flt_date = str(body)
-        cur_fltDate = int(flt_date.replace('/', ''))
-        row.verified = "FLIGHT_TIME"
-        db.session.commit()
+        valid, str_date = parse_date(body)
+        if valid == True:
+            cur_fltDate = int(str_date)
+            resp.message("""Please enter flight time in following Military time format
+                HHMMSS""")
+            row.verified = "FLIGHT_TIME"
+            db.session.commit()
+        else:
+            resp.message("""Incorrect Format. Please enter in following format
+                MM-DD-YYYY""")
     elif str(row.verified) == "FLIGHT_TIME":
-        resp.message("""Last thing, please enter the max number of passengers you're willing
+        valid, str_time = parse_time(body)
+        if valid == True:
+            resp.message("""Last thing, please enter the max number of passengers you're willing
             to ride with as a number. Ex. 2""")
 
-        fltTime_stripped = body.replace('/', '').replace(':', '')
-        cur_fltTime = int(re.sub("\D", '', fltTime_stripped))
-        row.verified = "FINISHED"
-        db.session.commit()
+            cur_fltTime = int(str_time)
+            row.verified = "FINISHED"
+            db.session.commit()
+        else:
+            resp.message(
+                """Incorrect Format. Please enter in milliary format HHMMSS""",
+            )
     elif str(row.verified) == "FINISHED":
-
-        matches = matchFound(row, cur_fltDate, cur_fltTime, cur_airport)
-        resp = send_matches(matches)
+        valid, str_max = parse_max(body)
+        if valid == True:
+            matches = matchFound(row, cur_fltDate, cur_fltTime, cur_airport)
+            resp = send_matches(matches)
+        else:
+            resp.message(
+                """Error, you can only enter between 1-2 passengers""",
+            )
 
     return str(resp)
 
@@ -113,7 +202,7 @@ def send_verify_email(uni, email, pnumber):
     to_email = Email(str(email))
     subject = "Verify Email with SkyBot"
 
-    random_num = random.randint(100000000000, 111111111111)
+    random_num = random.randint(100000, 111111)
 
     row = db.session.query(User).filter(User.phone_number == pnumber).first()
     row.verification_code = random_num
@@ -147,7 +236,7 @@ def reverfiy_uni():
     return str(resp)
 
 
-def error():
+def error(message):
     """
     Error Handler
 
@@ -155,8 +244,8 @@ def error():
     """
 
     resp = MessagingResponse()
-    resp.message("""Sorry an error has occured, please try again later
-        """)
+    error_message = "Error: " + str(message)
+    resp.message(error_message)
     return str(resp)
 
 
@@ -191,7 +280,7 @@ def exist_user(phone_number, body):
     elif str(curr_user.verified) in ["VERIFIED", "AIRPORT_INFO", "FLIGHT_TIME", "DATE_INFO", "FINISHED"]:
         message = verify(phone_number, body)
     else:
-        message = error()
+        message = error("Something unexpected happened, please try later")
     return message
 
 
@@ -261,16 +350,6 @@ def sms_reply():
     # gets phone number of user
     pnumber = request.values.get('From', None)
 
-    result = db.session.query(User.verification_code).all()
-    print("*********************")
-    print(result)
-    print("*********************")
-
-    result = db.session.query(User.uni).all()
-    print("*********************")
-    print(result)
-    print("*********************")
-
     # checks db for existing user
     check_num = db.session.query(User).filter(User.phone_number == pnumber)
     if db.session.query(check_num.exists()).scalar() is False:
@@ -282,7 +361,7 @@ def sms_reply():
             valid = check_uni(body)
             if valid == False:
                 remove_user(pnumber)
-                return str(error())
+                return str(error("Invalid uni!"))
 
         out_message = exist_user(pnumber, body)
 
