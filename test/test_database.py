@@ -123,9 +123,14 @@ class TestDatabase(unittest.TestCase):
 
     # Query a user's match
     def test_ReturnMatchInfo(self): 
-        pass   
 
+        match_id = 1
+        user_match = db.session.query(Match).filter(Match.id == 1).first()
+        match_date = user_match.ride_date
+        match_departTime = user_match.ride_departureTime
+        match_result= (str(match_date), str(match_departTime))
 
+        self.assertEqual(match_result, ("10312018", "1230"))
 
 
     def test_ReturnFlightInfo(self):
