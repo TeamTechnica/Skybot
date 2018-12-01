@@ -2,7 +2,7 @@ import os, sys; sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 # import sys
 # sys.path.append('Skybot/')
-from database import *
+from databaseChanges import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import unittest
@@ -48,15 +48,15 @@ class TestDatabase(unittest.TestCase):
 
     def test_UserSchema(self):
         result = str(User)
-        self.assertEqual(result, "<class 'database.User'>")
+        self.assertEqual(result, "<class 'databaseChanges.User'>")
 
     def test_FlightSchema(self):
         result = str(Flight)
-        self.assertEqual(result, "<class 'database.Flight'>")
+        self.assertEqual(result, "<class 'databaseChanges.Flight'>")
 
     def test_MatchSchema(self):
         result = str(Match)
-        self.assertEqual(result, "<class 'database.Match'>")
+        self.assertEqual(result, "<class 'databaseChanges.Match'>")
 
     #  Test querying data
 
@@ -102,8 +102,24 @@ class TestDatabase(unittest.TestCase):
 
     # Create a new user match
     def test_AddMatch(self): 
-        pass  
+        match_airport = 'JFK'
+        match_date = "10312018"
+        match_departTime = "1230"
 
+        new_match = Match(
+        airport=match_airport, ride_date=match_date,
+        ride_departureTime=match_departTime,
+        )
+
+        db.session.add(new_match)
+        db.session.commit()
+
+        user_flight = db.session.query(Match).filter(Match.airport == match_airport).first()
+        user_date = user_flight.ride_date
+        user_time = user_flight.ride_departureTime
+        result = (str(user_date), str(user_time))
+
+        self.assertEqual(result, (match_date, match_departTime))
 
     # Query a user's match
     def test_ReturnMatchInfo(self): 
