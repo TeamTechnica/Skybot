@@ -92,7 +92,17 @@ class TestDatabase(unittest.TestCase):
         result = (phone, maxpass)
         self.assertEqual(result, ('100000002',1))
 
-# Query flight times and airports based on date
+    # Create a new user match
+    def test_AddMatch(self): 
+        pass  
+
+
+    # Query a user's match
+    def test_ReturnMatchInfo(self): 
+        pass   
+
+
+    # Query flight times and airports based on date
 
     def test_ReturnFlightInfo(self):
         test_date = '10312018'
@@ -107,7 +117,7 @@ class TestDatabase(unittest.TestCase):
         self.assertEqual(result, [('JFK', 1230), ('JFK', 1230)])
 
 
-# Deletes test cases from database
+    # Deletes test cases from database
     def test_Delete(self):
         Flight.query.filter_by(id=test_flight3.id).delete()
         results = str(Flight.query.all())
