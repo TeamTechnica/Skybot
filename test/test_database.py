@@ -26,11 +26,11 @@ test_user3 = User(uni='test102', max_passengers = 2, phone_number = "100000003")
 test_user4 = User(uni='test103', max_passengers = 2, phone_number = "100000004")
 
 
-test_flight1 = Flight(airport = 'JFK', flight_date = "10312018", departure_time = "123000", passenger= test_user1)
-test_flight2 = Flight(airport = 'JFK', flight_date = "10312018", departure_time = "123000")
-test_flight3 = Flight(airport = 'LGA', flight_date = "12252018", departure_time = "124500")
-test_flight4 = Flight(airport = 'LGA', flight_date = "12252018", departure_time = "100000")
-test_flight5 = Flight(airport = 'LGA', flight_date = "12252018", departure_time = "100000")
+test_flight1 = Flight(airport = 'JFK', flight_date = "10312018", departure_time = "1230", passenger= test_user1)
+test_flight2 = Flight(airport = 'JFK', flight_date = "10312018", departure_time = "1230")
+test_flight3 = Flight(airport = 'LGA', flight_date = "12252018", departure_time = "1245")
+test_flight4 = Flight(airport = 'LGA', flight_date = "12252018", departure_time = "1000")
+test_flight5 = Flight(airport = 'LGA', flight_date = "12252018", departure_time = "1000")
 
 
 # db.session.add_all([test_user1, test_user2, test_user3, test_user4, test_flight1, test_flight2, test_flight3, test_flight4, test_flight5])
@@ -104,7 +104,7 @@ class TestDatabase(unittest.TestCase):
             flight_info.append((matching_flights[i].airport, matching_flights[i].departure_time ))
        
         result = flight_info
-        self.assertEqual(result, [('JFK', 123000), ('JFK', 123000)])
+        self.assertEqual(result, [('JFK', 1230), ('JFK', 1230)])
 
 
 # Deletes test cases from database
