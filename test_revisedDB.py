@@ -17,14 +17,14 @@ usr = User(uni="ksp2127", max_passengers=2, phone_number="123")
 usr1 = User(uni="ksp222", max_passengers=2, phone_number="321")
 
 
-mat1 = Match(airport='JFK', ride_date="080911", ride_departureTime="120000")
+mat1 = Match(airport='JFK', ride_date="080911", ride_departureTime="1200")
 
 flt1 = Flight(airport='JFK', flight_date="080911",
-              departure_time="120000", passenger=usr)
+              departure_time="1200", passenger=usr)
 flt2 = Flight(airport='JFK', flight_date="080901",
-              departure_time="140000", passenger=usr)
+              departure_time="1400", passenger=usr)
 flt3 = Flight(airport='JFK', flight_date="080911",
-              departure_time="160000", passenger=usr1)
+              departure_time="1600", passenger=usr1)
 
 
 db.session.add_all([usr, usr1, mat1, flt1, flt2, flt3])
@@ -34,7 +34,7 @@ db.session.commit()
 
 current_user = usr1
 current_fltDate = "080911"
-current_fltTime = "120000"
+current_fltTime = "1200"
 current_airport = 'JFK'
 
 # Queries for the first match based on flight date, time and aiport
