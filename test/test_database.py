@@ -97,7 +97,7 @@ class TestDatabase(unittest.TestCase):
         phone = user.phone_number
         maxpass = user.max_passengers
         result = (phone, maxpass)
-<<<<<<< HEAD
+
         self.assertEqual(result, ('100000002',1))
 
     # Create a new user match
@@ -110,10 +110,7 @@ class TestDatabase(unittest.TestCase):
         pass   
 
 
-    # Query flight times and airports based on date
-=======
-        self.assertEqual(result, ('100000002', 1))
->>>>>>> 1c3523a4533afc1ab7d4dd172be2739fdd00e750
+
 
     def test_ReturnFlightInfo(self):
         # Query flight times and airports based on date
@@ -129,11 +126,10 @@ class TestDatabase(unittest.TestCase):
         result = flight_info
         self.assertEqual(result, [('JFK', 1230), ('JFK', 1230)])
 
-<<<<<<< HEAD
+
 
     # Deletes test cases from database
-=======
->>>>>>> 1c3523a4533afc1ab7d4dd172be2739fdd00e750
+
     def test_Delete(self):
         # Deletes test cases from database
         Flight.query.filter_by(id=test_flight3.id).delete()
