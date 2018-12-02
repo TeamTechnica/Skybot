@@ -359,7 +359,7 @@ def sms_reply():
         if uni_entered is True:
             uni_entered = False
             valid = check_uni(body)
-            if validis False:
+            if valid is False:
                 remove_user(pnumber)
                 return str(error("Invalid uni!"))
 
