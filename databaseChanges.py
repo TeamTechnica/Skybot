@@ -37,7 +37,7 @@ class Flight(db.Model):
     flight_date = db.Column(db.Integer)
     departure_time = db.Column(db.Integer)
     passenger_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    match_id = db.Column(db.Integer, db.ForeignKey('matches.id'))
+    match_id = db.Column(db.Integer, db.ForeignKey('matches.id'), default='NONE')
 
 
 class Match(db.Model):
@@ -47,6 +47,7 @@ class Match(db.Model):
     ride_date = db.Column(db.Integer)
     ride_departureTime = db.Column(db.Integer)
     riders = relationship("Flight", backref="ride")
+    ride_passengers = db.Column(db.Integer)
 
 
 if __name__ == '__databaseChanges__':
