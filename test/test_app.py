@@ -20,12 +20,12 @@ phone_num2 = '+' + str(random.randint(10000000000, 11111111111))
 
 
 class Test(unittest.TestCase):
+
     def test_new_user1(self):
         self.test_app = app.test_client()
 
         response = self.test_app.post(
             '/sms', data={
-                'To': '+16674014282',
                 'From': phone_num1, 'Body': 'Hello There!',
             },
         )
@@ -37,15 +37,66 @@ class Test(unittest.TestCase):
 
         self.assertEqual(message, "Welcome to Skybot! What's your UNI?")
 
-    user1 = User.query.filter_by(phone_number=phone_num1).first()
-    if user1 is not None:
-        db.session.delete(user1)
-        db.session.commit()
+    def test_new_user2(self):
+        self.test_app = app.test_client()
 
-    user2 = User.query.filter_by(phone_number=phone_num2).first()
-    if user1 is not None:
-        db.session.delete(user1)
-        db.session.commit()
+        response = self.test_app.post(
+            '/sms', data={
+                'From': phone_num2, 'Body': 'Hello There!',
+            },
+        )
+
+        root = ET.fromstring(str(response.data))
+        for child in root:
+            message = child.text
+            break
+
+        self.assertEqual(message, "Welcome to Skybot! What's your UNI?")
+
+    def test_wrong_uni(self):
+        self.test_app = app.test_client()
+
+        response = self.test_app.post(
+            '/sms', data={
+                'From': phone_num2, 'Body': 'mj33',
+            },
+        )
+
+        root = ET.fromstring(str(response.data))
+        for child in root:
+            message = child.text
+            break
+
+        self.assertEqual(message, "Error: Invalid uni!")
+
+        response = self.test_app.post(
+            '/sms', data={
+                'From': phone_num2, 'Body': 'mj2222',
+            },
+        )
+
+        root = ET.fromstring(str(response.data))
+        for child in root:
+            message = child.text
+            break
+
+        self.assertEqual(
+            message, """Check your email for a verification email
+            and text us the code""",
+        )
+
+    def remove_users(self):
+        self.test_app = app.test_client()
+
+        user1 = User.query.filter_by(phone_number=phone_num1).first()
+        if user1 is not None:
+            db.session.delete(user1)
+            db.session.commit()
+
+        user2 = User.query.filter_by(phone_number=phone_num2).first()
+        if user1 is not None:
+            db.session.delete(user1)
+            db.session.commit()
 
 
 if __name__ == '__main__':
