@@ -98,7 +98,7 @@ class TestDatabase(unittest.TestCase):
         maxpass = user.max_passengers
         result = (phone, maxpass)
 
-        self.assertEqual(result, ('100000002',1))
+        self.assertEqual(result, ('100000002', 1))
 
     # Create a new user match
     def test_AddMatch(self): 
@@ -107,8 +107,8 @@ class TestDatabase(unittest.TestCase):
         match_departTime = "1230"
 
         new_match = Match(
-        airport=match_airport, ride_date=match_date,
-        ride_departureTime=match_departTime,
+        airport = match_airport, ride_date = match_date,
+        ride_departureTime = match_departTime, ride_passengers = 1
         )
 
         db.session.add(new_match)
@@ -126,6 +126,17 @@ class TestDatabase(unittest.TestCase):
 
         match_id = 1
         user_match = db.session.query(Match).filter(Match.id == 1).first()
+        match_date = user_match.ride_date
+        match_departTime = user_match.ride_departureTime
+        match_result= (str(match_date), str(match_departTime))
+
+        self.assertEqual(match_result, ("10312018", "1230"))
+
+    # Test that a match will limit based on max_passenger
+    def test_ReturnMatchInfo(self): 
+
+        match_id = 1
+        user_match = (db.session.query(Match).filter(Match.id == 1)).first()
         match_date = user_match.ride_date
         match_departTime = user_match.ride_departureTime
         match_result= (str(match_date), str(match_departTime))
