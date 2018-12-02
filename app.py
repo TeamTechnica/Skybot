@@ -61,7 +61,7 @@ def parse_date(date_entry):
     cur_date = datetime.datetime.now()
     flt_date = str(date_entry)
 
-    if re.match(r"[0-9]*-[0-9]*-[0-9]*", flt_date) != None:
+    if re.match(r"[0-9]*-[0-9]*-[0-9]*", flt_date) is not None:
         date_str = flt_date.replace('-', '')
     else:
         valid = False
@@ -143,17 +143,17 @@ def verify(pnumber, body):
             resp.message("""Incorrect Format. Please enter 1 for JFK, 2 for
                 LGA or 3 for EWR""")
         else:
-            resp.message("""Please enter Date of Flight Departure in following format
-                MM-DD-YYYY""")
+            resp.message("""Please enter Date of Flight Departure in
+                following format MM-DD-YYYY""")
             cur_airport = str(airports[int(body) - 1])
             row.verified = "DATE_INFO"
             db.session.commit()
     elif str(row.verified) == "DATE_INFO":
         valid, str_date = parse_date(body)
-        if valid == True:
+        if valid is True:
             cur_fltDate = int(str_date)
-            resp.message("""Please enter flight time in following Military time format
-                HHMMSS""")
+            resp.message("""Please enter flight time in following Military
+                time format HHMMSS""")
             row.verified = "FLIGHT_TIME"
             db.session.commit()
         else:
@@ -161,9 +161,9 @@ def verify(pnumber, body):
                 MM-DD-YYYY""")
     elif str(row.verified) == "FLIGHT_TIME":
         valid, str_time = parse_time(body)
-        if valid == True:
-            resp.message("""Last thing, please enter the max number of passengers you're willing
-            to ride with as a number. Ex. 2""")
+        if valid is True:
+            resp.message("""Last thing, please enter the max number of
+            passengers you're willing to ride with as a number. Ex. 2""")
 
             cur_fltTime = int(str_time)
             row.verified = "FINISHED"
@@ -174,7 +174,7 @@ def verify(pnumber, body):
             )
     elif str(row.verified) == "FINISHED":
         valid, str_max = parse_max(body)
-        if valid == True:
+        if valid is True:
             matches = matchFound(row, cur_fltDate, cur_fltTime, cur_airport)
             resp = send_matches(matches)
         else:
@@ -356,10 +356,10 @@ def sms_reply():
         out_message = new_user(pnumber)
     else:
         body = request.values.get('Body', None)
-        if uni_entered == True:
+        if uni_entered is True:
             uni_entered = False
             valid = check_uni(body)
-            if valid == False:
+            if validis False:
                 remove_user(pnumber)
                 return str(error("Invalid uni!"))
 
@@ -382,8 +382,8 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport):
         current_fltTime, Flight.airport == current_airport,
     )).first()  # getting all flights with the same departure date
 
-    if matched_flight == None:
-        # Adds the users flight data to the database after querying (avoids matching with itself)
+    if matched_flight is None:
+        # Adds users flight data to db after querying-avoids matching w itself)
         user_flight_data = Flight(
             airport=current_airport, flight_date=current_fltDate,
             departure_time=current_fltTime, passenger=current_user,
@@ -403,7 +403,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport):
         match_airport = current_airport
         match_date = current_fltDate
 
-        # Finds the rider with the earliest departure time and subtracts two hours
+        # Finds rider w earliest departure time and subtracts two hours
         match_departTime = str(
             (min(int(current_fltTime), int(matched_flight.departure_time))) - 20000,
         )
