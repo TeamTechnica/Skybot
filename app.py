@@ -368,19 +368,21 @@ def sms_reply():
     return str(out_message)
 
 
-def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport):
+def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
     current_user = cur_user
     current_fltDate = cur_fltDate
     current_fltTime = cur_fltTime
     current_airport = cur_airport
+    current_maxPass = cur_maxPass
 
     match_list = []
+
 
     # Queries for the first match based on flight date, time and aiport
     matched_flight = (Flight.query.filter(
         Flight.flight_date == current_fltDate, Flight.departure_time ==
-        current_fltTime, Flight.airport == current_airport,
-    )).first()  # getting all flights with the same departure date
+        current_fltTime, Flight.airport == current_airport, ((Flight.match_id == None) or (Flight.match_id == 1 and (Flight.users.max_passengers == 2))
+    ))).first()  # getting all flights with the same departure date
 
     if matched_flight == None:
         # Adds the users flight data to the database after querying (avoids matching with itself)
@@ -390,7 +392,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport):
         )
         db.session.add(user_flight_data)
         db.session.commit()
-
+        # If there is a match in the system
     else:
 
         user_flight_data = Flight(
@@ -411,7 +413,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport):
         # Creates new match instance
         new_match = Match(
             airport=match_airport, ride_date=match_date,
-            ride_departureTime=match_departTime,
+            ride_departureTime=match_departTime,rides_passengers = 1
         )
         db.session.add(new_match)
         db.session.commit()
