@@ -413,7 +413,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
         # Creates new match instance
         new_match = Match(
             airport=match_airport, ride_date=match_date,
-            ride_departureTime=match_departTime,rides_passengers = 1
+            ride_departureTime=match_departTime, rides_passengers = (matched_flight.users.max_passengers)+1
         )
         db.session.add(new_match)
         db.session.commit()
