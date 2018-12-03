@@ -6,7 +6,6 @@ from sqlalchemy.orm import sessionmaker
 import unittest
 import sqlalchemy
 
-
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///match.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 engine = create_engine('sqlite:///match.db')
@@ -15,7 +14,6 @@ session = Session()
 
 db.drop_all()
 db.create_all()
-
 
 # Creates test data
 
@@ -62,14 +60,11 @@ db.session.add(new_user2)
 db.session.add(new_user3)
 db.session.commit()
 
-
-
-
 class TestMatch(unittest.TestCase):
 
     # Testing for schema
 
-    def test_MatchingWithMatchedFlight(self):
+    def test_MatchExistingMatch(self):
 
         flt = 'JFK'
         date=10312018
@@ -78,7 +73,7 @@ class TestMatch(unittest.TestCase):
         results = matchFound(new_user, date, time, flt, maxx)
         self.assertEqual(results, ['test100', 'test105', 'jna2123', 628, 'JFK'] )
 
-    def test_MatchingWithNonMatchedFlight(self):
+    def test_NonMatch(self):
         
         flt = 'JFK'
         date=10312018
@@ -89,7 +84,7 @@ class TestMatch(unittest.TestCase):
 
         self.assertEqual(results, ['ksp1235', 'ksp1234', 1328, 'JFK'])
 
-    def test_NoMatch(self):
+    def test_MatchingWithNonMatch(self):
 
         flt = 'JFK'
         date=10312018
