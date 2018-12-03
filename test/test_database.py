@@ -103,12 +103,12 @@ class TestDatabase(unittest.TestCase):
     # Create a new user match
     def test_AddMatch(self): 
         match_airport = 'JFK'
-        match_date = "10312018"
-        match_departTime = "1230"
+        match_date = 10312018
+        match_departTime = 1230
 
         new_match = Match(
         airport = match_airport, ride_date = match_date,
-        ride_departureTime = match_departTime, ride_passengers = 1
+        ride_departureTime = match_departTime, available_seats = 1
         )
 
         db.session.add(new_match)
@@ -117,7 +117,7 @@ class TestDatabase(unittest.TestCase):
         user_flight = db.session.query(Match).filter(Match.airport == match_airport).first()
         user_date = user_flight.ride_date
         user_time = user_flight.ride_departureTime
-        result = (str(user_date), str(user_time))
+        result = (user_date, user_time)
 
         self.assertEqual(result, (match_date, match_departTime))
 
@@ -128,20 +128,9 @@ class TestDatabase(unittest.TestCase):
         user_match = db.session.query(Match).filter(Match.id == 1).first()
         match_date = user_match.ride_date
         match_departTime = user_match.ride_departureTime
-        match_result= (str(match_date), str(match_departTime))
+        match_result= (match_date, match_departTime)
 
-        self.assertEqual(match_result, ("10312018", "1230"))
-
-    # Test that a match will limit based on max_passenger
-    def test_ReturnMatchInfo(self): 
-
-        match_id = 1
-        user_match = (db.session.query(Match).filter(Match.id == 1)).first()
-        match_date = user_match.ride_date
-        match_departTime = user_match.ride_departureTime
-        match_result= (str(match_date), str(match_departTime))
-
-        self.assertEqual(match_result, ("10312018", "1230"))
+        self.assertEqual(match_result, (10312018, 1230))
 
 
     def test_ReturnFlightInfo(self):
@@ -168,14 +157,14 @@ class TestDatabase(unittest.TestCase):
         results = str(Flight.query.all())
         self.assertEqual(results, "[<Flight 1>, <Flight 2>, <Flight 4>, <Flight 5>]")
 
-    def test_RepeatedUni(self):
-        error = "false"
-        try:
-            test_user6 = User(uni='test100', max_passengers=2,
-                              phone_number="100000001")
-            db.session.add(test_user6)
-            db.session.commit()
-        except:
-            db.session.rollback()
-            error = "User is already in database"
-        self.assertEqual(error, "User is already in database")
+
+    # def test_RepeatedUni(self):
+    #     error = "false"
+    #     try:
+    #         test_user6 = User(uni='test100', max_passengers = 2, phone_number = "100000001")
+    #         db.session.add(test_user6)
+    #         db.session.commit()
+    #     except:
+    #          db.session.rollback()
+    #          error = "User is already in database"
+    #     self.assertEqual(error, "User is already in database")
