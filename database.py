@@ -46,7 +46,7 @@ class Match(db.Model):
     airport = db.Column(db.String(3))
     ride_date = db.Column(db.Integer)
     ride_departureTime = db.Column(db.Integer)
-    ride_passengers = db.Column(db.Integer)
+    available_seats = db.Column(db.Integer) # can be done by querying the match id
     riders = relationship("Flight", backref="ride")
 
 
