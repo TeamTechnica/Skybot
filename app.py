@@ -2,8 +2,8 @@ import datetime
 import os
 import random
 import re
-
 import sendgrid
+
 from flask import Flask
 from flask import redirect
 from flask import request
@@ -12,7 +12,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from twilio.twiml.messaging_response import MessagingResponse
 
+from cost import *
 from database import *
+from match import *
+
 
 engine = create_engine('sqlite:///site.db')
 Session = sessionmaker(autoflush=True, autocommit=False, bind=engine)
@@ -175,7 +178,7 @@ def verify(pnumber, body):
     elif str(row.verified) == "FINISHED":
         valid, str_max = parse_max(body)
         if valid is True:
-            matches = matchFound(row, cur_fltDate, cur_fltTime, cur_airport)
+            matches = matchFound(row, cur_fltDate, cur_fltTime, cur_airport, int(str_max))
             resp = send_matches(matches)
         else:
             resp.message(
@@ -367,63 +370,6 @@ def sms_reply():
 
     return str(out_message)
 
-
-def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport):
-    current_user = cur_user
-    current_fltDate = cur_fltDate
-    current_fltTime = cur_fltTime
-    current_airport = cur_airport
-
-    match_list = []
-
-    # Queries for the first match based on flight date, time and aiport
-    matched_flight = (Flight.query.filter(
-        Flight.flight_date == current_fltDate, Flight.departure_time ==
-        current_fltTime, Flight.airport == current_airport,
-    )).first()  # getting all flights with the same departure date
-
-    if matched_flight is None:
-        # Adds users flight data to db after querying-avoids matching w itself)
-        user_flight_data = Flight(
-            airport=current_airport, flight_date=current_fltDate,
-            departure_time=current_fltTime, passenger=current_user,
-        )
-        db.session.add(user_flight_data)
-        db.session.commit()
-
-    else:
-
-        user_flight_data = Flight(
-            airport=current_airport, flight_date=current_fltDate,
-            departure_time=current_fltTime, passenger=current_user,
-        )
-        db.session.add(user_flight_data)
-        db.session.commit()
-
-        match_airport = current_airport
-        match_date = current_fltDate
-
-        # Finds rider w earliest departure time and subtracts two hours
-        match_departTime = str(
-            (min(int(current_fltTime), int(matched_flight.departure_time))) - 20000,
-        )
-
-        # Creates new match instance
-        new_match = Match(
-            airport=match_airport, ride_date=match_date,
-            ride_departureTime=match_departTime,
-        )
-        db.session.add(new_match)
-        db.session.commit()
-
-        # Add match to the flight
-        user_flight_data.ride = new_match
-        matched_flight.ride = new_match
-
-        for riderss in new_match.riders:
-            match_list.append(str(riderss.passenger.uni))
-
-    return match_list
 
 
 if __name__ == "__main__":
