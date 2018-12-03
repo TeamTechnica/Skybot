@@ -48,7 +48,3 @@ class Match(db.Model):
     ride_departureTime = db.Column(db.Integer)
     available_seats = db.Column(db.Integer) # can be done by querying the match id
     riders = relationship("Flight", backref="ride")
-
-
-if __name__ == '__databaseChanges__':
-    app.run(Debug=True)
