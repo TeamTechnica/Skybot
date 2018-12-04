@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import exists
 from sqlalchemy.orm import sessionmaker
 
-from app import *
+from app import db, User, Flight, Match
 
 '''
 engine = create_engine(
