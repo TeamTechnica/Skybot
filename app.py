@@ -20,15 +20,15 @@ import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy import exists
 from sqlalchemy.orm import sessionmaker
+from twilio.rest import Client
 
 from cost import *
-
 
 
 app = Flask(__name__)
 app.config.from_object(['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-#app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://localhost/site"
+# app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://localhost/site"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://ehepwtnqjcfntn:04461d661ce43b16602000fb490e32ece1f3558bddac8f4c6059886544f7c7cd@ec2-107-21-125-209.compute-1.amazonaws.com:5432/d6uqqsindhtp99'
 
@@ -36,10 +36,10 @@ db = SQLAlchemy(app)
 
 from database import *
 
-#engine = create_engine('postgresql://localhost/site')
-#Session = sessionmaker(autoflush=True, autocommit=False, bind=engine)
-#conn = engine.connect()
-#session = Session(bind=conn)
+# engine = create_engine('postgresql://localhost/site')
+# Session = sessionmaker(autoflush=True, autocommit=False, bind=engine)
+# conn = engine.connect()
+# session = Session(bind=conn)
 
 # variables for matching
 cur_fltDate = None
@@ -52,7 +52,14 @@ uni_entered = False
 airports = ["JFK", "LGA", "EWR"]
 
 
-def send_matches(match_list):
+def notify_user(phone_number, unis):
+    client = Client(os.getenv('TWILIO_KEY'), os.getenv('TWILIO_TOKEN'))
+    message = client.messages.create(
+        to=phone_number,
+        from_=os.getenv('SKYBOT_TWILIO_NUM'),
+        body="Your matches are " + unis + ". Have a great day!")
+
+def send_matches(match_unis, match_nums):
     """Handles returning matching unis to user
 
     Returns: TwiML to send to user
@@ -60,12 +67,16 @@ def send_matches(match_list):
     resp = MessagingResponse()
     unis = ""
 
-    if len(match_list) == 0:
+    if len(match_unis) == 0:
         resp.message("""Sorry I was not able to find any matches.
             I will keep looking though!""")
     else:
-        for x in range(0, len(match_list)-2):
-            unis = unis + str(match_list[x]) + " "
+        for x in range(0, len(match_unis)-2):
+            unis = unis + str(match_unis[x]) + " "
+
+        for num in match_nums:
+            notify_user(num, unis)
+
         reply = "Your matches are " + unis + ". Have a great day!"
         resp.message(reply)
 
@@ -197,10 +208,10 @@ def verify(pnumber, body):
     elif str(row.verified) == "FINISHED":
         valid, str_max = parse_max(body)
         if valid is True:
-            matches = matchFound(
+            matches, match_nums = matchFound(
                 row, cur_fltDate, cur_fltTime, cur_airport, int(str_max),
             )
-            resp = send_matches(matches)
+            resp = send_matches(matches, match_nums)
         else:
             resp.message(
                 """Error, you can only enter between 1-2 passengers""",
@@ -499,8 +510,10 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
 
             # Creates new match instance and adds to DB
             new_match = Match(
-                airport=match_airport, ride_date=match_date,
-                ride_departureTime=match_departTime, available_seats=match_availableSeats,
+                airport=match_airport,
+                ride_date=match_date,
+                ride_departureTime=match_departTime,
+                available_seats=match_availableSeats,
                 riders=[],
             )
             db.session.add(new_match)
@@ -511,16 +524,18 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
             matched_flight.ride = new_match
 
             # Creates a list of the riders' UNIs
-            match_list = []
+            match_unis = []
+            match_nums = []
 
             for riderss in new_match.riders:
-                match_list.append(str(riderss.passenger.uni))
+                match_unis.append(str(riderss.passenger.uni))
+                match_nums.append(str(riderss.passenger.phone_number))
 
             # At the end of the array, it appends the ride depature time
-            match_list.append(match_departTime)
-            match_list.append(match_airport)
+            match_unis.append(match_departTime)
+            match_unis.append(match_airport)
             # returns list of UNIs in ride
-            return match_list
+            return match_unis, match_nums
 
         # If user was matched to a previously matched flight
         else:
@@ -535,11 +550,13 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
             ).first()
             shared_match.available_seats = (shared_match.available_seats - 1)
 
-            # Creates a list of the riders' UNIs
-            match_list = []
+            # Creates a list of the riders' UNIs and phone numbers
+            match_unis = []
+            match_nums = []
 
             for riderss in shared_match.riders:
-                match_list.append(str(riderss.passenger.uni))
+                match_unis.append(str(riderss.passenger.uni))
+                match_nums.append(str(riderss.passenger.phone_number))
 
             # Query the flights with the match ID
             earliest_flight = db.session.query(Flight).filter(
@@ -547,11 +564,12 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
             ).order_by(Flight.departure_time).first()
             ride_departure = earliest_flight.departure_time - 200
 
-            match_list.append(ride_departure)
-            match_list.append(user_flight_data.airport)
+            match_unis.append(ride_departure)
+            match_unis.append(user_flight_data.airport)
 
             # returns list of UNIs in ride
-            return match_list
+            return match_unis, match_nums
+
 
 if __name__ == "__main__":
     app.run(debug=True)
