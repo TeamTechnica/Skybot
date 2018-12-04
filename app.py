@@ -66,7 +66,7 @@ def send_matches(match_list):
     else:
         for x in range(0, len(match_list)-2):
             unis = unis + str(match_list[x]) + " "
-        reply = "Your matches are" + unis + ". Have a great day!"
+        reply = "Your matches are " + unis + ". Have a great day!"
         resp.message(reply)
 
     return resp
