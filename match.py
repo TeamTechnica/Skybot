@@ -34,7 +34,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
             Flight.flight_date == current_fltDate, Flight.departure_time.between(
                 (current_fltTime - 100), (current_fltTime + 100),
             ), Flight.airport == current_airport, (Flight.match_id == None),
-        ).first())  # getting all flights with the same departure date
+        ).first()  # getting all flights with the same departure date
 
     # If their max  passengers is 2, it queries fligths that are 1
     # hours within the flight depature that that were not matched
@@ -44,8 +44,8 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
         matched_flight = db.session.query(Flight).filter(
             Flight.flight_date == current_fltDate, Flight.departure_time.between(
                 (current_fltTime-100), (current_fltTime + 100),
-            ), Flight.airport == current_airport, (Flight.match_id == None),
-        ).first())
+            ), Flight.airport == current_airport, (Flight.match_id == None)
+        ).first()
 
         # If there were no rides, that fit that criteria then
         # it queries flights that were matched but have space
@@ -58,7 +58,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
             previously_matched_flights = db.session.query(Flight).filter(
                 Flight.flight_date == current_fltDate, Flight.departure_time.between(
                     (current_fltTime), (current_fltTime + 100),
-                ), Flight.airport == current_airport, (Flight.match_id != None),
+                ), Flight.airport == current_airport, (Flight.match_id != None)
             )
 
             for x in previously_matched_flights:
@@ -168,7 +168,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
             # Query the flights with the match ID
             earliest_flight = db.session.query(Flight).filter(
                 Match.id == shared_match_id,
-            ).order_by(Flight.departure_time)).first()
+            ).order_by(Flight.departure_time).first()
             ride_departure = earliest_flight.departure_time - 200
 
             match_list.append(ride_departure)
