@@ -21,7 +21,9 @@ from cost import *
 app = Flask(__name__)
 app.config.from_object(['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://localhost/site"
+#app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://localhost/site"
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 
 db = SQLAlchemy(app)
 
