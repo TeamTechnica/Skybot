@@ -2,20 +2,19 @@ import datetime
 import os
 import random
 import re
-import sendgrid
 
+import sendgrid
 from flask import Flask
 from flask import redirect
 from flask import request
-from sendgrid.helpers.mail import *
 from flask_sqlalchemy import SQLAlchemy
+from sendgrid.helpers.mail import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from twilio.twiml.messaging_response import MessagingResponse
 
-import os
 from cost import *
-
+from match import *
 
 
 app = Flask(__name__)
@@ -57,8 +56,8 @@ def send_matches(match_list):
         resp.message("""Sorry I was not able to find any matches.
             I will keep looking though!""")
     else:
-        for uni in match_list:
-            unis = unis + uni + " "
+        for x in range(0, len(match_list)-2):
+            unis = unis + str(match_list[x]) + " "
         reply = "Your matches are" + unis + ". Have a great day!"
         resp.message(reply)
 
@@ -151,9 +150,9 @@ def verify(pnumber, body):
         flight information. Please enter the Airport
         (1)JFK (2)LGA (3)EQR""")
 
-        row.verified = "AIRPORT_INFO"
+        row.verified = "AIRPORT_IN"
         db.session.commit()
-    elif str(row.verified) == "AIRPORT_INFO":
+    elif str(row.verified) == "AIRPORT_IN":
         if int(body) < 1 or int(body) > 3:
             resp.message("""Incorrect Format. Please enter 1 for JFK, 2 for
                 LGA or 3 for EWR""")
@@ -169,12 +168,12 @@ def verify(pnumber, body):
             cur_fltDate = int(str_date)
             resp.message("""Please enter flight time in following Military
                 time format HHMMSS""")
-            row.verified = "FLIGHT_TIME"
+            row.verified = "FLIGHT_TIM"
             db.session.commit()
         else:
             resp.message("""Incorrect Format. Please enter in following format
                 MM-DD-YYYY""")
-    elif str(row.verified) == "FLIGHT_TIME":
+    elif str(row.verified) == "FLIGHT_TIM":
         valid, str_time = parse_time(body)
         if valid is True:
             resp.message("""Last thing, please enter the max number of
@@ -190,7 +189,9 @@ def verify(pnumber, body):
     elif str(row.verified) == "FINISHED":
         valid, str_max = parse_max(body)
         if valid is True:
-            matches = matchFound(row, cur_fltDate, cur_fltTime, cur_airport, int(str_max))
+            matches = matchFound(
+                row, cur_fltDate, cur_fltTime, cur_airport, int(str_max),
+            )
             resp = send_matches(matches)
         else:
             resp.message(
@@ -292,7 +293,7 @@ def exist_user(phone_number, body):
         db.session.commit()
 
         message = reverfiy_uni()
-    elif str(curr_user.verified) in ["VERIFIED", "AIRPORT_INFO", "FLIGHT_TIME", "DATE_INFO", "FINISHED"]:
+    elif str(curr_user.verified) in ["VERIFIED", "AIRPORT_IN", "FLIGHT_TIM", "DATE_INFO", "FINISHED"]:
         message = verify(phone_number, body)
     else:
         message = error("Something unexpected happened, please try later")
@@ -314,6 +315,7 @@ def new_user(phone_number):
     new_user = User(
         phone_number=phone_number,
         verified="NONE", verification_code=0,
+        uni="NONE", max_passengers=0, flights=[],
     )
     db.session.add(new_user)
     db.session.commit()
@@ -381,7 +383,6 @@ def sms_reply():
         out_message = exist_user(pnumber, body)
 
     return str(out_message)
-
 
 
 if __name__ == "__main__":
