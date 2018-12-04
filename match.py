@@ -5,10 +5,10 @@ import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy import exists
 from sqlalchemy.orm import sessionmaker
-'''
+
 from app import *
 
-
+'''
 engine = create_engine(
     'postgres://ehepwtnqjcfntn:04461d661ce43b16602000fb490e32ece1f3558bddac8f4c6059886544f7c7cd@ec2-107-21-125-209.compute-1.amazonaws.com:5432/d6uqqsindhtp99',
 )
