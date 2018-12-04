@@ -2,27 +2,22 @@ import datetime
 import os
 import random
 import re
+import unittest
+from datetime import datetime
 
 import sendgrid
+import sqlalchemy
 from flask import Flask
 from flask import redirect
 from flask import request
 from flask_sqlalchemy import SQLAlchemy
 from sendgrid.helpers.mail import *
 from sqlalchemy import create_engine
+from sqlalchemy import exists
 from sqlalchemy.orm import sessionmaker
 from twilio.twiml.messaging_response import MessagingResponse
 
-import unittest
-from datetime import datetime
-
-import sqlalchemy
-from sqlalchemy import create_engine
-from sqlalchemy import exists
-from sqlalchemy.orm import sessionmaker
-
 from cost import *
-
 
 
 app = Flask(__name__)
@@ -420,7 +415,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
         matched_flight = db.session.query(Flight).filter(
             Flight.flight_date == current_fltDate, Flight.departure_time.between(
                 (current_fltTime-100), (current_fltTime + 100),
-            ), Flight.airport == current_airport, (Flight.match_id == None)
+            ), Flight.airport == current_airport, (Flight.match_id == None),
         ).first()
 
         # If there were no rides, that fit that criteria then
@@ -434,7 +429,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
             previously_matched_flights = db.session.query(Flight).filter(
                 Flight.flight_date == current_fltDate, Flight.departure_time.between(
                     (current_fltTime), (current_fltTime + 100),
-                ), Flight.airport == current_airport, (Flight.match_id != None)
+                ), Flight.airport == current_airport, (Flight.match_id != None),
             )
 
             for x in previously_matched_flights:
@@ -552,6 +547,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
 
             # returns list of UNIs in ride
             return match_list
+
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -8,14 +8,6 @@ from sqlalchemy.orm import sessionmaker
 
 from app import *
 
-'''
-engine = create_engine(
-    'postgres://ehepwtnqjcfntn:04461d661ce43b16602000fb490e32ece1f3558bddac8f4c6059886544f7c7cd@ec2-107-21-125-209.compute-1.amazonaws.com:5432/d6uqqsindhtp99',
-)
-Session = sessionmaker(autoflush=True, autocommit=False, bind=engine)
-conn = engine.connect()
-session = Session(bind=conn)
-'''
 
 def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
 
@@ -44,7 +36,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
         matched_flight = db.session.query(Flight).filter(
             Flight.flight_date == current_fltDate, Flight.departure_time.between(
                 (current_fltTime-100), (current_fltTime + 100),
-            ), Flight.airport == current_airport, (Flight.match_id == None)
+            ), Flight.airport == current_airport, (Flight.match_id == None),
         ).first()
 
         # If there were no rides, that fit that criteria then
@@ -58,7 +50,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
             previously_matched_flights = db.session.query(Flight).filter(
                 Flight.flight_date == current_fltDate, Flight.departure_time.between(
                     (current_fltTime), (current_fltTime + 100),
-                ), Flight.airport == current_airport, (Flight.match_id != None)
+                ), Flight.airport == current_airport, (Flight.match_id != None),
             )
 
             for x in previously_matched_flights:

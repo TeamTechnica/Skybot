@@ -1,10 +1,10 @@
+codecov==2.0.15
+coverage==4.5.2
 Flask==0.12.2
-Flask-SQLAlchemy==2.3.2
 Flask-Migrate==2.3.1
 Flask-Script==2.0.6
+Flask-SQLAlchemy==2.3.2
 gunicorn==19.9.0
+psycopg2==2.7.6.1
 sendgrid==5.6.0
 twilio==6.10.0
-coverage==4.5.2
-codecov==2.0.15
-psycopg2==2.7.6.1
