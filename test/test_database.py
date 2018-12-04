@@ -1,7 +1,7 @@
-import os, sys; sys.path.append(os.path.dirname(os.path.realpath(__file__)))
+#import os, sys; sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
-# import sys
-# sys.path.append('Skybot/')
+import sys
+sys.path.append('Skybot/')
 from database import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -10,9 +10,10 @@ import sqlalchemy
 
 # app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///tester.db'
 # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-engine = create_engine('sqlite:///tester.db')
-Session = sessionmaker(bind=engine)
-session = Session()
+engine = create_engine('postgresql://localhost/site')
+Session = sessionmaker(autoflush=True, autocommit=False, bind=engine)
+conn = engine.connect()
+session = Session(bind=conn)
 
 db.drop_all()
 db.create_all()
@@ -20,26 +21,19 @@ db.create_all()
 
 # Creates test database instances
 
-test_user1 = User(uni='test100', max_passengers=2,
-                  phone_number="100000001")
-test_user2 = User(uni='test101', max_passengers=1,
-                  phone_number="100000002")
-test_user3 = User(uni='test102', max_passengers=2,
-                  phone_number="100000003")
-test_user4 = User(uni='test103', max_passengers=2,
-                  phone_number="100000004")
+test_user1 = User(uni='test100', max_passengers=2, phone_number="100000001", flights=[], verification_code=123,verified="isVerified")
+test_user2 = User(uni='test101', max_passengers=1,phone_number="100000002", flights=[], verification_code=456, verified="isVerified")
+test_user3 = User(uni='test102', max_passengers=2, phone_number="100000003", flights=[], verification_code=789, verified="isVerified")
+test_user4 = User(uni='test103', max_passengers=2, phone_number="100000004", flights=[], verification_code=101, verified="isVerified")
+test_user5 = User(uni='test105', max_passengers=2, phone_number="100000005", flights=[], verification_code=129, verified="isVerified")
 
 
-test_flight1 = Flight(airport='JFK', flight_date="10312018",
-                      departure_time="123000", passenger=test_user1)
-test_flight2 = Flight(airport='JFK', flight_date="10312018",
-                      departure_time="123000")
-test_flight3 = Flight(airport='LGA', flight_date="12252018",
-                      departure_time="124500")
-test_flight4 = Flight(airport='LGA', flight_date="12252018",
-                      departure_time="100000")
-test_flight5 = Flight(airport='LGA', flight_date="12252018",
-                      departure_time="100000")
+test_flight1 = Flight(airport='JFK', flight_date=10312018, departure_time=1028, passenger_id = test_user1.id, match_id=None)
+test_flight2 = Flight(airport='JFK', flight_date=10312018, departure_time=1230, passenger_id = test_user2.id, match_id=None)
+test_flight3 = Flight(airport='LGA', flight_date=12252018, departure_time=1245, passenger_id = test_user3.id, match_id=None)
+test_flight4 = Flight(airport='LGA', flight_date=12252018, departure_time= 900, passenger_id = test_user4.id, match_id=None)
+test_flight5 = Flight(airport='LGA', flight_date=12252018, departure_time=1100, passenger_id = test_user1.id, match_id=None)
+test_flight6 = Flight(airport='JFK', flight_date=10312018, departure_time= 928, passenger_id = test_user5.id, match_id=None)
 
 
 # db.session.add_all([test_user1, test_user2, test_user3, test_user4, test_flight1, test_flight2, test_flight3, test_flight4, test_flight5])
@@ -71,7 +65,7 @@ class TestDatabase(unittest.TestCase):
         db.session.commit()
 
         result = str(User.query.all())
-        self.assertEqual(result, "[<User 1>, <User 2>, <User 3>, <User 4>]")
+        self.assertEqual(result, "[<id 1>, <id 2>, <id 3>, <id 4>]")
 
     def test_AddingFlight(self):
         db.session.add(test_flight1)
@@ -82,7 +76,7 @@ class TestDatabase(unittest.TestCase):
         db.session.commit()
 
         result = str(Flight.query.all())
-        self.assertEqual(result, "[<Flight 1>, <Flight 2>, <Flight 3>, <Flight 4>, <Flight 5>]")
+        self.assertEqual(result, "[<id 1>, <id 2>, <id 3>, <id 4>, <id 5>]")
 
     def test_UserQuery(self):
         # Checks whether existing user's phone number can be found in the db
@@ -105,7 +99,7 @@ class TestDatabase(unittest.TestCase):
     def test_ReturnFlightInfo(self):
         # Query flight times and airports based on date
 
-        test_date = '10312018'
+        test_date = 10312018
         matching_flights = db.session.query(Flight).filter(Flight.flight_date == test_date).all()
 
         flight_info = []
@@ -114,13 +108,13 @@ class TestDatabase(unittest.TestCase):
             flight_info.append((matching_flights[i].airport, matching_flights[i].departure_time))
 
         result = flight_info
-        self.assertEqual(result, [('JFK', 123000), ('JFK', 123000)])
+        self.assertEqual(result, [('JFK', 1028), ('JFK', 1230)])
 
     def test_Delete(self):
         # Deletes test cases from database
         Flight.query.filter_by(id=test_flight3.id).delete()
         results = str(Flight.query.all())
-        self.assertEqual(results, "[<Flight 1>, <Flight 2>, <Flight 4>, <Flight 5>]")
+        self.assertEqual(results, "[<id 1>, <id 2>, <id 4>, <id 5>]")
 
     def test_RepeatedUni(self):
         error = "false"

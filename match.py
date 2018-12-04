@@ -1,10 +1,16 @@
-from database import *
+from app import *
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import unittest
 import sqlalchemy
 from sqlalchemy import exists
 from datetime import datetime
+
+
+engine = create_engine('postgresql://localhost/site')
+Session = sessionmaker(autoflush=True, autocommit=False, bind=engine)
+conn = engine.connect()
+session = Session(bind=conn)
 
 def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
 
