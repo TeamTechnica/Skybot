@@ -8,9 +8,7 @@ from sqlalchemy.orm import sessionmaker
 import unittest
 import sqlalchemy
 
-# app.config['SQLALCHEMY_DATABASE_URI']='sqlite:///tester.db'
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-engine = create_engine('postgresql://localhost/site')
+engine = create_engine('DATABASE_URL')
 Session = sessionmaker(autoflush=True, autocommit=False, bind=engine)
 conn = engine.connect()
 session = Session(bind=conn)
