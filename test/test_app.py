@@ -19,7 +19,7 @@ phone_num2 = '+' + str(random.randint(10000000000, 11111111111))
 
 
 class Test(unittest.TestCase):
-    
+    '''
     def test_new_user1(self):
         self.test_app = app.test_client()
 
@@ -107,7 +107,7 @@ class Test(unittest.TestCase):
         if user1 is not None:
             db.session.delete(user1)
             db.session.commit()
-    
+    '''
 
 
 if __name__ == '__main__':
