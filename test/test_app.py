@@ -29,7 +29,7 @@ class Test(unittest.TestCase):
             },
         )
 
-        root = ET.fromstring(str(response.data))
+        root = ET.fromstring(str(response.data), ET.XMLParser(encoding='utf-8'))
         for child in root:
             message = child.text
             break
@@ -38,7 +38,7 @@ class Test(unittest.TestCase):
 
         response = self.test_app.post('/sms', data={ 'From': phone_num1, 'Body': 'mj1111',},)
 
-        root = ET.fromstring(str(response.data))
+        root = ET.fromstring(str(response.data), ET.XMLParser(encoding='utf-8'))
         for child in root:
             message = child.text
             break
@@ -55,7 +55,7 @@ class Test(unittest.TestCase):
                 },
             )
 
-        root = ET.fromstring(str(response.data))
+        root = ET.fromstring(str(response.data), ET.XMLParser(encoding='utf-8'))
         for child in root:
             message = child.text
             break
@@ -71,7 +71,7 @@ class Test(unittest.TestCase):
                 },
             )
 
-        root = ET.fromstring(str(response.data))
+        root = ET.fromstring(str(response.data), ET.XMLParser(encoding='utf-8'))
         for child in root:
             message = child.text
             break
@@ -86,7 +86,7 @@ class Test(unittest.TestCase):
                 },
             )
 
-        root = ET.fromstring(str(response.data))
+        root = ET.fromstring(str(response.data), ET.XMLParser(encoding='utf-8'))
         for child in root:
             message = child.text
             break
