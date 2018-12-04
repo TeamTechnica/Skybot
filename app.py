@@ -8,19 +8,29 @@ from flask import Flask
 from flask import redirect
 from flask import request
 from sendgrid.helpers.mail import *
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from twilio.twiml.messaging_response import MessagingResponse
 
+import os
 from cost import *
+
+
+
+app = Flask(__name__)
+app.config.from_object(['APP_SETTINGS'])
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://localhost/site"
+
+db = SQLAlchemy(app)
+
 from database import *
-from match import *
 
-
-engine = create_engine('sqlite:///site.db')
-Session = sessionmaker(autoflush=True, autocommit=False, bind=engine)
-conn = engine.connect()
-session = Session(bind=conn)
+#engine = create_engine('postgresql://localhost/site')
+#Session = sessionmaker(autoflush=True, autocommit=False, bind=engine)
+#conn = engine.connect()
+#session = Session(bind=conn)
 
 # variables for matching
 cur_fltDate = None
