@@ -156,7 +156,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
             shared_match_id = matched_flight.match_id
             shared_match = db.session.query(Match).filter(
                 Match.id == shared_match_id,
-            )).first()
+            ).first()
             shared_match.available_seats = (shared_match.available_seats - 1)
 
             # Creates a list of the riders' UNIs
