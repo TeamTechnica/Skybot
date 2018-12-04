@@ -55,7 +55,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
 
             available_rides = []
 
-            previously_matched_flights = Flight.query.filter(
+            previously_matched_flights = db.session.query(Flight).filter(
                 Flight.flight_date == current_fltDate, Flight.departure_time.between(
                     (current_fltTime), (current_fltTime + 100),
                 ), Flight.airport == current_airport, (Flight.match_id != None),
