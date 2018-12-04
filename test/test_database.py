@@ -1,5 +1,5 @@
 import os, sys; sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-
+'''
 # import sys
 # sys.path.append('Skybot/')
 from database import *
@@ -133,3 +133,4 @@ class TestDatabase(unittest.TestCase):
             db.session.rollback()
             error = "User is already in database"
         self.assertEqual(error, "User is already in database")
+        '''
