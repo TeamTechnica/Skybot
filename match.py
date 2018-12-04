@@ -30,7 +30,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
     # If their max  passengers is 1, it queries fligths that are 1
     # hours within the flight depature that that were not matched.
     if current_maxPass == 1:
-        matched_flight = (Flight.query.filter(
+        matched_flight = db.session.query(Flight).filter(
             Flight.flight_date == current_fltDate, Flight.departure_time.between(
                 (current_fltTime - 100), (current_fltTime + 100),
             ), Flight.airport == current_airport, (Flight.match_id == None),
@@ -41,7 +41,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
 
     if current_maxPass == 2:
 
-        matched_flight = (Flight.query.filter(
+        matched_flight = db.session.query(Flight).filter(
             Flight.flight_date == current_fltDate, Flight.departure_time.between(
                 (current_fltTime-100), (current_fltTime + 100),
             ), Flight.airport == current_airport, (Flight.match_id == None),
@@ -63,7 +63,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
 
             for x in previously_matched_flights:
 
-                match_instance = Match.query.filter(
+                match_instance = db.session.query(Match).filter(
                     Match.id == x.match_id,
                 ).first()
 
@@ -107,7 +107,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
 
             # Calculates whether there will be an available seats
             # based on the preferences of the two users
-            matched_user = User.query.filter(
+            matched_user = db.session.query(User).filter(
                 User.id == matched_passenger_id,
             ).first()
             match_availableSeats = (
@@ -154,7 +154,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
 
             # Updates the number of available seats in the match
             shared_match_id = matched_flight.match_id
-            shared_match = (Match.query.filter(
+            shared_match = db.session.query(Match).filter(
                 Match.id == shared_match_id,
             )).first()
             shared_match.available_seats = (shared_match.available_seats - 1)
@@ -166,7 +166,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
                 match_list.append(str(riderss.passenger.uni))
 
             # Query the flights with the match ID
-            earliest_flight = (Flight.query.filter(
+            earliest_flight = db.session.query(Flight).filter(
                 Match.id == shared_match_id,
             ).order_by(Flight.departure_time)).first()
             ride_departure = earliest_flight.departure_time - 200
