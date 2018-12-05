@@ -54,7 +54,6 @@ omit =
     */html/*
     */http/*
     */multiprocessing/*
-    */psycopg2/*
 [report]
 # Regexes for lines to exclude from consideration
 exclude_lines =
@@ -126,7 +125,6 @@ omit =
     */html/*
     */http/*
     */multiprocessing/*
-    */psycopg2/*
 
 [html]
 directory = coverage_html_report
