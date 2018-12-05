@@ -1,9 +1,10 @@
-import unittest
-import requests
 import random
-# import app
+import unittest
 import xml.etree.ElementTree as ET
+
+import requests
 from twilio.rest import Client
+# import app
 
 rand_num = str(random.randint(100000000000, 111111111111))
 
@@ -45,16 +46,16 @@ class AppTests(unittest.TestCase):
                             'From': rand_num, 'Body': user_verification})
 
         root = ET.fromstring(str(req.text))
-        for child in root;
+        for child in root:
             message = child.text
             break
 
-        self.assertEqual(message, str(Thanks for verifying! Let's start
+        self.assertEqual(message, str("Thanks for verifying! Let's start
         flight information. Please answer the following, separated by commas:
         1. JFK/LGA/EWR
         2. Date (MM/DD/YYYY)
         3. Flight Time (XX:XX AM/PM)
-        4. Maximum Number of Additional Passengers))
+        4. Maximum Number of Additional Passengers"))
     '''
 
 

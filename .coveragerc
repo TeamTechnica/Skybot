@@ -5,7 +5,7 @@ omit =
     test/*
     */Cookie.py
     */_LWPCookieJar.py
-    */_MozillaCookieJar.py 
+    */_MozillaCookieJar.py
     */bisect.py
     */cookielib.py
     */ctypes/*
@@ -76,7 +76,7 @@ omit =
     test/*
     */Cookie.py
     */_LWPCookieJar.py
-    */_MozillaCookieJar.py 
+    */_MozillaCookieJar.py
     */bisect.py
     */cookielib.py
     */ctypes/*
