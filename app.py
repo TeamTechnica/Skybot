@@ -259,7 +259,7 @@ def send_verify_email(uni, email, pnumber):
     return str(resp)
 
 
-def reverfiy_uni():
+def reverify_uni():
     """
     Handles the case when wrong verification_code given
 
@@ -311,7 +311,7 @@ def exist_user(phone_number, body):
         curr_user.verified = "NONE"
         db.session.commit()
 
-        message = reverfiy_uni()
+        message = reverify_uni()
     elif str(curr_user.verified) in ["VERIFIED", "AIRPORT_IN", "FLIGHT_TIM", "DATE_INFO", "FINISHED"]:
         message = verify(phone_number, body)
     else:
@@ -329,7 +329,7 @@ def new_user(phone_number):
     """
     global uni_entered
 
-    uni_entered = True
+    #uni_entered = True
     # create & insert new user into database
     new_user = User(
         phone_number=phone_number,
@@ -351,7 +351,7 @@ def check_uni(body):
 
     Returns: True or False depending on valid uni
     """
-    valid_uni = True
+    #valid_uni = True
 
     uni_chars = re.sub("[0-9]", '', body)
     if len(uni_chars) < 2 or len(uni_chars) > 3:
@@ -392,8 +392,8 @@ def sms_reply():
         out_message = new_user(pnumber)
     else:
         body = request.values.get('Body', None)
-        if uni_entered is True:
-            uni_entered = False
+        if uni_entered is False:
+            #uni_entered = False
             valid = check_uni(body)
             if valid is False:
                 remove_user(pnumber)
