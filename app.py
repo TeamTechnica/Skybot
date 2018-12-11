@@ -351,7 +351,7 @@ def check_uni(body):
 
     Returns: True or False depending on valid uni
     """
-    #valid_uni = True
+    valid_uni = True
 
     uni_chars = re.sub("[0-9]", '', body)
     if len(uni_chars) < 2 or len(uni_chars) > 3:
