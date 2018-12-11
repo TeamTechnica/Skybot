@@ -329,7 +329,7 @@ def new_user(phone_number):
     """
     global uni_entered
 
-    #uni_entered = True
+    uni_entered = True
     # create & insert new user into database
     new_user = User(
         phone_number=phone_number,
@@ -392,8 +392,8 @@ def sms_reply():
         out_message = new_user(pnumber)
     else:
         body = request.values.get('Body', None)
-        if uni_entered is False:
-            #uni_entered = False
+        if uni_entered is True:
+            uni_entered = False
             valid = check_uni(body)
             if valid is False:
                 remove_user(pnumber)
