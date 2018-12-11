@@ -22,21 +22,25 @@ SkyBot aims to provide a simple user interface to connect people in order to mak
 ├── .gitignore                    # Ignore unneeded Python files
 ├── .pylintrc                     # Python lint configuration
 ├── .travis.yml                   # CI Configuration
+├── .pre-commit-config.yaml       # Precommit File
+├── .coveragerc                   # Coverage Information
 ├── CONTRIBUTING.md               # Guide to adding to SkyBot
 ├── Procfile                      # Used when deploying the bot to production
 ├── README.md                     # This file
 ├── app.py                        # The main bot code
-├── databaseChanges.py            # Contains database schemas
+├── config.py                     # Database Configurations
+├── database.py                   # Contains database schemas
+├── manage.py                     # Database Managemenet
+├── match.py                      # Contains matching algorithm
 ├── requirements.txt              # Libraries used to build the bot
 ├── runtime.txt                   # Python configuration for Heroku
-├── site.db                       # Database for Skybot
 ├── nose.cfg             		  # TO DO
-├── tester.db                     # TO DO
 ├── test/                         # All supporting code used by app.py
-    ├── database_changes_test.py  # TO DO
     ├── test_app.py               # TO DO
     ├── test_databases.py         # TO DO
 ├── coverage_docs/				  # TO DO
+├── migrations/		     		  # TO DO
+├── submissions/				  # TO DO
 ```
 
 ## Technology Stack
@@ -49,7 +53,7 @@ SkyBot aims to provide a simple user interface to connect people in order to mak
 - Data Storage: SQLAlchemy
 - VersionControl: Github
 - Cloud Platform: Heroku
-- APIs: Twilio, Lyft Fare Estimator, SendGrid
+- APIs: Twilio, SendGrid, Lyft Fare Estimator
 
 
 ## Connecting to Twilio

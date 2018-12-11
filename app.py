@@ -259,7 +259,7 @@ def send_verify_email(uni, email, pnumber):
     return str(resp)
 
 
-def reverfiy_uni():
+def reverify_uni():
     """
     Handles the case when wrong verification_code given
 
@@ -311,7 +311,7 @@ def exist_user(phone_number, body):
         curr_user.verified = "NONE"
         db.session.commit()
 
-        message = reverfiy_uni()
+        message = reverify_uni()
     elif str(curr_user.verified) in ["VERIFIED", "AIRPORT_IN", "FLIGHT_TIM", "DATE_INFO", "FINISHED"]:
         message = verify(phone_number, body)
     else:
