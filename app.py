@@ -47,7 +47,6 @@ cur_fltTime = None
 cur_airport = None
 
 # variable for uni integrity checking
-uni_entered = False
 
 airports = ["JFK", "LGA", "EWR"]
 
@@ -228,6 +227,10 @@ def send_verify_email(uni, email, pnumber):
 
     Returns: TwiML to send to user
     """
+    if check_uni(body) is True:
+        pass
+    else:
+        return str(error("Invalid uni: Send it again."))
 
     sg = sendgrid.SendGridAPIClient(os.getenv('SENDGRID_TOKEN'))
 
@@ -297,7 +300,8 @@ def exist_user(phone_number, body):
     ).first()
 
     # if verify state is NONE, call send email function
-    if curr_user.verified == 'NONE':
+    if curr_user.verified == 'NONE': 
+        # email is not verified
         message = send_verify_email(body, body + "@columbia.edu", phone_number)
     elif curr_user.verified == "EMAIL_SENT" and int(body) == curr_user.verification_code:
         # update verified state to "VERIFIED"
@@ -326,9 +330,6 @@ def new_user(phone_number):
 
     Returns: TwiML to send to user
     """
-    global uni_entered
-
-    uni_entered = True
     # create & insert new user into database
     new_user = User(
         phone_number=phone_number,
@@ -363,25 +364,12 @@ def check_uni(body):
     return valid_uni
 
 
-def remove_user(pnumber):
-    """
-    Handles removing a user from table
-
-    Returns nothing, removes user from DB
-    """
-    user = User.query.filter_by(phone_number=str(pnumber)).first()
-    if user is not None:
-        db.session.delete(user)
-        db.session.commit()
-
-
 @app.route("/sms", methods=['GET', 'POST'])
 def sms_reply():
     """ Handles text communication with users
 
     Returns: TwiML to send to user
     """
-    global uni_entered
     # gets phone number of user
     pnumber = request.values.get('From', None)
 
@@ -391,12 +379,6 @@ def sms_reply():
         out_message = new_user(pnumber)
     else:
         body = request.values.get('Body', None)
-        if uni_entered is True:
-            uni_entered = False
-            valid = check_uni(body)
-            if valid is False:
-                remove_user(pnumber)
-                return str(error("Invalid uni!"))
 
         out_message = exist_user(pnumber, body)
 
