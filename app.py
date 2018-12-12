@@ -67,8 +67,7 @@ def send_matches(match_unis, match_nums):
     unis = ""
 
     if len(match_unis) == 0:
-        resp.message("""Sorry I was not able to find any matches.
-            I will keep looking though!""")
+        resp.message("""No matches for you right now, but we'll send you an update if there's a match!""")
     else:
         for x in range(0, len(match_unis)-2):
             unis = unis + str(match_unis[x]) + " "
@@ -121,10 +120,11 @@ def parse_time(body):
     Returns: Boolean if valid and date string for matching
     if valid
     """
+    print("Body: " + str(body))
     valid = True
     time_ent = body
     if (
-        len(time_ent) < 6 or len(time_ent) > 6 or int(time_ent[0:2]) > 24 or int(time_ent[0:2]) < 1 or
+        len(time_ent) != 6 or int(time_ent[0:2]) > 24 or int(time_ent[0:2]) < 1 or
         int(time_ent[2:4]) < 1 or int(time_ent[2:4]) > 60 or int(
             time_ent[4:6],
         ) < 1 or int(time_ent[4:6]) > 60
@@ -196,7 +196,7 @@ def verify(pnumber, body):
         if valid is True:
             resp.message("""Last thing, please enter the max number of
             passengers you're willing to ride with as a number. Ex. 2""")
-
+            print(str_time)
             cur_fltTime = int(str_time)
             row.verified = "FINISHED"
             db.session.commit()
