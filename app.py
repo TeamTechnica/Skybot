@@ -149,7 +149,7 @@ def parse_max(body):
         valid = False
         return valid, ""
     else:
-        return valid, max_entry
+        return valid, int(max_entry)
 
 
 def verify(pnumber, body):
