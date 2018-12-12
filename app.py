@@ -206,6 +206,8 @@ def verify(pnumber, body):
             )
     elif str(row.verified) == "FINISHED":
         valid, str_max = parse_max(body)
+        print("Curr " + str(cur_fltTime))
+        print(type(cur_fltTime))
         if valid is True:
             matches, match_nums = matchFound(
                 row, cur_fltDate, cur_fltTime, cur_airport, int(str_max),
