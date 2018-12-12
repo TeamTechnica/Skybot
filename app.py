@@ -67,7 +67,7 @@ def send_matches(match_unis, match_nums):
     resp = MessagingResponse()
     unis = ""
 
-    if len(match_unis) == 0:
+    if len(match_unis) == 2:
         resp.message("""Sorry I was not able to find any matches.
             I will keep looking though!""")
     else:
