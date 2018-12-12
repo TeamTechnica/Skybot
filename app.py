@@ -397,7 +397,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
     # hours within the flight depature that that were not matched.
     if current_maxPass == 1:
         matched_flight = db.session.query(Flight).filter(
-            Flight.flight_date == current_fltDate, Flight.departure_time.between(
+            Flight.flight_date == current_fltDate, Flight.passenger_id != current_user.id, Flight.departure_time.between(
                 (current_fltTime - 100), (current_fltTime + 100),
             ), Flight.airport == current_airport, (Flight.match_id == None),
         ).first()  # getting all flights with the same departure date
@@ -408,7 +408,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
     if current_maxPass == 2:
 
         matched_flight = db.session.query(Flight).filter(
-            Flight.flight_date == current_fltDate, Flight.departure_time.between(
+            Flight.flight_date == current_fltDate, Flight.passenger_id != current_user.id, Flight.departure_time.between(
                 (current_fltTime-100), (current_fltTime + 100),
             ), Flight.airport == current_airport, (Flight.match_id == None)
         ).first()
