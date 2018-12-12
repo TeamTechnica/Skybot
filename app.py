@@ -249,8 +249,7 @@ def send_verify_email(uni, email, pnumber):
     response = sg.client.mail.send.post(request_body=mail.get())
 
     resp = MessagingResponse()
-    resp.message("""Check your email for a verification email
-            and text us the code""")
+    resp.message("""Check your email for a verification email and text us the code""")
 
     # update email verified
     row.verified = "EMAIL_SENT"
