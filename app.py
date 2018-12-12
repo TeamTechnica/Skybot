@@ -268,8 +268,7 @@ def reverify_uni():
     Returns: TwiML to send to user
     """
     resp = MessagingResponse()
-    resp.message("""Sorry the verification_code does not match.
-        Please enter your uni again""")
+    resp.message("""Sorry the verification_code does not match. Please enter your uni again""")
     return str(resp)
 
 
@@ -314,7 +313,6 @@ def exist_user(phone_number, body):
         curr_user.verified = "NONE"
         db.session.commit()
 
-        message = reverify_uni()
     elif str(curr_user.verified) in ["VERIFIED", "AIRPORT_IN", "FLIGHT_TIM", "DATE_INFO", "FINISHED"]:
         message = verify(phone_number, body)
     else:
