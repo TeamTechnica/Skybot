@@ -227,7 +227,7 @@ def send_verify_email(uni, email, pnumber):
 
     Returns: TwiML to send to user
     """
-    if check_uni(body) is True:
+    if check_uni(uni) is True:
         pass
     else:
         return str(error("Invalid uni: Send it again."))
