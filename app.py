@@ -157,7 +157,7 @@ def verify(pnumber, body):
 
     Returns: TwiML to send to user
     """
-    #global cur_fltDate, cur_fltTime, cur_airport, airports
+    global cur_fltDate, cur_fltTime, cur_airport, airports
     # triggered when they send the correct verification code
     resp = MessagingResponse()
 
