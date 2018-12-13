@@ -2,25 +2,21 @@ import datetime
 import os
 import random
 import re
+import unittest
+from datetime import datetime
 
 import sendgrid
+import sqlalchemy
 from flask import Flask
 from flask import redirect
 from flask import request
 from flask_sqlalchemy import SQLAlchemy
 from sendgrid.helpers.mail import *
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from twilio.twiml.messaging_response import MessagingResponse
-
-import unittest
-from datetime import datetime
-
-import sqlalchemy
-from sqlalchemy import create_engine
 from sqlalchemy import exists
 from sqlalchemy.orm import sessionmaker
 from twilio.rest import Client
+from twilio.twiml.messaging_response import MessagingResponse
 
 from cost import *
 
@@ -56,7 +52,9 @@ def notify_user(phone_number, unis):
     message = client.messages.create(
         to=phone_number,
         from_=os.getenv('SKYBOT_TWILIO_NUM'),
-        body="Your matches are " + unis + ". Have a great day!")
+        body="Your matches are " + unis + ". Have a great day!",
+    )
+
 
 def send_matches(match_unis, match_nums):
     """Handles returning matching unis to user
@@ -67,7 +65,9 @@ def send_matches(match_unis, match_nums):
     unis = ""
 
     if len(match_unis) == 0:
-        resp.message("""No matches for you right now, but we'll send you an update if there's a match!""")
+        resp.message(
+            """No matches for you right now, but we'll send you an update if there's a match!""",
+        )
     else:
         for x in range(0, len(match_unis)-2):
             unis = unis + str(match_unis[x]) + " "
@@ -256,7 +256,9 @@ def send_verify_email(uni, email, pnumber):
     response = sg.client.mail.send.post(request_body=mail.get())
 
     resp = MessagingResponse()
-    resp.message("""Check your email for a verification email and text us the code""")
+    resp.message(
+        """Check your email for a verification email and text us the code""",
+    )
 
     # update email verified
     row.verified = "EMAIL_SENT"
@@ -272,7 +274,9 @@ def reverify_uni():
     Returns: TwiML to send to user
     """
     resp = MessagingResponse()
-    resp.message("""Sorry the verification_code does not match. Please enter your uni again""")
+    resp.message(
+        """Sorry the verification_code does not match. Please enter your uni again""",
+    )
     return str(resp)
 
 
@@ -303,7 +307,7 @@ def exist_user(phone_number, body):
     ).first()
 
     # if verify state is NONE, call send email function
-    if curr_user.verified == 'NONE': 
+    if curr_user.verified == 'NONE':
         # email is not verified
         message = send_verify_email(body, body + "@columbia.edu", phone_number)
     elif curr_user.verified == "EMAIL_SENT" and int(body) == curr_user.verification_code:
@@ -414,7 +418,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
         matched_flight = db.session.query(Flight).filter(
             Flight.flight_date == current_fltDate, Flight.passenger_id != current_user.id, Flight.departure_time.between(
                 (current_fltTime-100), (current_fltTime + 100),
-            ), Flight.airport == current_airport, (Flight.match_id == None)
+            ), Flight.airport == current_airport, (Flight.match_id == None),
         ).first()
 
         # If there were no rides, that fit that criteria then
@@ -428,7 +432,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
             previously_matched_flights = db.session.query(Flight).filter(
                 Flight.flight_date == current_fltDate, Flight.departure_time.between(
                     (current_fltTime), (current_fltTime + 100),
-                ), Flight.airport == current_airport, (Flight.match_id != None)
+                ), Flight.airport == current_airport, (Flight.match_id != None),
             )
 
             for x in previously_matched_flights:
@@ -453,7 +457,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
         db.session.add(user_flight_data)
         db.session.commit()
 
-        return []
+        return [], []
 
     # Otherwise
     else:
