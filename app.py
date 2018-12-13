@@ -88,29 +88,28 @@ def parse_date(date_entry):
     Returns: Boolean if valid and date string for matching
     if valid
     """
-    valid = True
     cur_date = datetime.datetime.now()
     flt_date = str(date_entry)
 
     if re.match(r"[0-9]*-[0-9]*-[0-9]*", flt_date) is not None:
         date_str = flt_date.replace('-', '')
     else:
-        valid = False
-        return valid, ""
+        return False, ""
 
     entry_date = datetime.datetime(
         int(date_str[4:8]), int(date_str[0:2]), int(date_str[2:4]),
     )
     if (
-        len(date_str) > 8 or len(date_str) < 1 or int(date_str[0:2]) < 0 or int(date_str[0:2]) > 12 or
-        int(date_str[2:4]) < 1 or int(
-            date_str[2:4],
-        ) > 31 or entry_date < cur_date
+        len(date_str) > 8 or len(date_str) < 1 or
+        int(date_str[0:2]) < 0 or
+        int(date_str[0:2]) > 12 or
+        int(date_str[2:4]) < 1 or
+        int(date_str[2:4]) > 31 or
+        entry_date < cur_date
     ):
-        valid = False
-        return valid, ""
+        return False, ""
     else:
-        return valid, date_str
+        return True, date_str
 
 
 def parse_time(body):
@@ -121,18 +120,15 @@ def parse_time(body):
     if valid
     """
     print("Body: " + str(body))
-    valid = True
     time_ent = body
     if (
         len(time_ent) != 6 or int(time_ent[0:2]) > 24 or int(time_ent[0:2]) < 1 or
-        int(time_ent[2:4]) < 1 or int(time_ent[2:4]) > 60 or int(
-            time_ent[4:6],
-        ) < 1 or int(time_ent[4:6]) > 60
+        int(time_ent[2:4]) < 1 or int(time_ent[2:4]) > 60 or int(time_ent[4:6]) < 1 or
+        int(time_ent[4:6]) > 60
     ):
-        valid = False
-        return valid, ""
+        return False, ""
     else:
-        return valid, time_ent
+        return True, time_ent
 
 
 def parse_max(body):
@@ -142,14 +138,12 @@ def parse_max(body):
     Returns: Boolean if valid and time string for matching
     if valid
     """
-    valid = True
     max_entry = body
 
     if int(max_entry) > 2 or int(max_entry) < 1:
-        valid = False
-        return valid, ""
+        return False, ""
     else:
-        return valid, int(max_entry)
+        return True, int(max_entry)
 
 
 def verify(pnumber, body):
@@ -180,12 +174,14 @@ def verify(pnumber, body):
             resp.message("""Please enter Date of Flight Departure in
                 following format MM-DD-YYYY""")
             cur_airport = str(airports[int(body) - 1])
+            print("Flight Airport in method" + str(cur_airport))
             row.verified = "DATE_INFO"
             db.session.commit()
     elif str(row.verified) == "DATE_INFO":
         valid, str_date = parse_date(body)
         if valid is True:
             cur_fltDate = int(str_date)
+            print("Flight Date in method " + str(cur_fltDate))
             resp.message("""Please enter flight time in following Military
                 time format HHMMSS""")
             row.verified = "FLIGHT_TIM"
@@ -200,6 +196,7 @@ def verify(pnumber, body):
             passengers you're willing to ride with as a number. Ex. 2""")
             print(str_time)
             cur_fltTime = int(str_time)
+            print("Flight Time in method" + str(cur_fltTime))
             row.verified = "FINISHED"
             db.session.commit()
         else:
@@ -208,6 +205,8 @@ def verify(pnumber, body):
             )
     elif str(row.verified) == "FINISHED":
         valid, str_max = parse_max(body)
+        print("Flight passengers " + str(str_max))
+
         print("This is the row")
         print(row.verified)
         print("Flight Time " + str(cur_fltTime))
