@@ -162,6 +162,8 @@ def verify(pnumber, body):
     resp = MessagingResponse()
 
     row = db.session.query(User).filter(User.phone_number == pnumber).first()
+    print("This is the row")
+    print(row)
 
     if str(row.verified) == "VERIFIED":
         resp.message("""Thanks for verifying! Let's get started with your
@@ -206,6 +208,8 @@ def verify(pnumber, body):
             )
     elif str(row.verified) == "FINISHED":
         valid, str_max = parse_max(body)
+        print("This is the row")
+        print(row)
         print("Flight Time " + str(cur_fltTime))
         print("Flight Date " + str(cur_fltDate))
         print("Flight passengers " + str(str_max))
