@@ -396,6 +396,7 @@ def sms_reply():
 
 def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
 
+    global cur_fltDate, cur_fltTime, cur_airport, airports
     # Stores the user, their flight time, date, airport,
     # and prefered max number of additional passengers
     current_user = cur_user
