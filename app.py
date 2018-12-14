@@ -399,11 +399,11 @@ def matchFound(cur_user):
     global cur_fltDate, cur_fltTime, cur_airport, cur_max
     # Stores the user, their flight time, date, airport,
     # and prefered max number of additional passengers
-    current_user = cur_user
-    current_fltDate = cur_fltDate
-    current_fltTime = cur_fltTime
-    current_airport = cur_airport
-    current_maxPass = cur_max
+    current_user = eval('cur_user')
+    current_fltDate = eval('cur_fltDate')
+    current_fltTime = eval('cur_fltTime')
+    current_airport = eval('cur_airport')
+    current_maxPass = eval('cur_max')
 
     # If their max  passengers is 1, it queries fligths that are 1
     # hours within the flight depature that that were not matched.
