@@ -8,11 +8,9 @@ SkyBot is an SMS chat bot that allows traveling Columbia students to share rides
 
 Using our matching algorithm, SkyBot accurately matches students with the closest travel itineraries and shared preferences! With API integrations, including Twilio, SendGrid, and Lyft students can easily:
 
-- Access their travel itineraries
 - Estimate transportation cost
-- Split transportation cost
-- Connects matches via LionMail
-- Share calendar invites and reminders
+- Receive their matches'contact information via text message
+- Receive a recommended departure time based on riders' flights
 
 SkyBot aims to provide a simple user interface to connect people in order to make the process of getting to your desired destination less of a hassle.
 
