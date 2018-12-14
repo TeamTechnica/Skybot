@@ -50,7 +50,7 @@ SkyBot aims to provide a simple user interface to connect people in order to mak
 - Static Analysis Tool: PyLint
 - Build Tool: Travis CI
 - Continuous Integration Tool: Travis CI
-- Data Storage: SQLAlchemy
+- Data Storage: PostgreSQL
 - VersionControl: Github
 - Cloud Platform: Heroku
 - APIs: Twilio, SendGrid, Lyft Fare Estimator
