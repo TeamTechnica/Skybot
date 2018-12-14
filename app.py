@@ -41,6 +41,7 @@ from database import *
 cur_fltDate = None
 cur_fltTime = None
 cur_airport = None
+cur_max = None
 
 # variable for uni integrity checking
 
@@ -151,7 +152,7 @@ def verify(pnumber, body):
 
     Returns: TwiML to send to user
     """
-    global cur_fltDate, cur_fltTime, cur_airport, airports
+    global cur_fltDate, cur_fltTime, cur_airport, cur_max, airports
     # triggered when they send the correct verification code
     resp = MessagingResponse()
 
@@ -205,18 +206,17 @@ def verify(pnumber, body):
             )
     elif str(row.verified) == "FINISHED":
         valid, str_max = parse_max(body)
-        print("Flight passengers " + str(str_max))
+        cur_max = int(str_max)
+        print("Flight passengers " + str(cur_max))
 
         print("This is the row")
         print(row.verified)
         print("Flight Time " + str(cur_fltTime))
         print("Flight Date " + str(cur_fltDate))
-        print("Flight passengers " + str(str_max))
+        print("Flight passengers " + str(cur_max))
         print("Flight Airport " + str(cur_airport))
         if valid is True:
-            matches, match_nums = matchFound(
-                row, cur_fltDate, cur_fltTime, cur_airport, int(str_max),
-            )
+            matches, match_nums = matchFound(row)
             resp = send_matches(matches, match_nums)
         else:
             resp.message(
@@ -394,16 +394,16 @@ def sms_reply():
     return str(out_message)
 
 
-def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
+def matchFound(cur_user):
 
-    global cur_fltDate, cur_fltTime, cur_airport, airports
+    global cur_fltDate, cur_fltTime, cur_airport, cur_max
     # Stores the user, their flight time, date, airport,
     # and prefered max number of additional passengers
     current_user = cur_user
     current_fltDate = cur_fltDate
     current_fltTime = cur_fltTime
     current_airport = cur_airport
-    current_maxPass = cur_maxPass
+    current_maxPass = cur_max
 
     # If their max  passengers is 1, it queries fligths that are 1
     # hours within the flight depature that that were not matched.
