@@ -310,13 +310,10 @@ def exist_user(phone_number, body):
         message = verify(phone_number, body)
     elif curr_user.verified == "EMAIL_SENT" and int(body) != curr_user.verification_code:
         # update verified so new email is sent
-        print("*******************************")
-        print("I'm getting to this coniditon\n")
-        print("*******************************")
         curr_user.verified = "NONE"
         db.session.commit()
 
-        message = "Sorry the code doesn't match. Please input uni again so we can send a new code"
+        message = error("Sorry the code doesn't match. Please input uni again so we can send a new code")
 
     elif str(curr_user.verified) in ["VERIFIED", "AIRPORT_IN", "FLIGHT_TIM", "DATE_INFO", "FINISHED"]:
         message = verify(phone_number, body)
