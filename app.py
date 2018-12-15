@@ -286,6 +286,31 @@ def error(message):
     resp.message(error_message)
     return str(resp)
 
+def check_valid_code(pnumber, body):
+    """ Handles checking valid code
+
+    Keyword arguments:
+    phone_number -- user's phone number
+    body -- user's input code
+
+    Returns boolean
+    """
+    curr_user = db.session.query(User).filter_by(
+        phone_number=pnumber,
+    ).first()
+
+    if re.search('[a-zA-Z]', body) is None:
+        pass
+    else:
+        return False
+
+    if int(body) == curr_user.verification_code is False:
+        return False
+    else:
+        return True
+
+
+
 
 def exist_user(phone_number, body):
     """ Handles communication with existing Skybot users
@@ -304,13 +329,13 @@ def exist_user(phone_number, body):
     if curr_user.verified == 'NONE':
         # email is not verified
         message = send_verify_email(body, body + "@columbia.edu", phone_number)
-    elif curr_user.verified == "EMAIL_SENT" and re.search('[a-zA-Z]', body) == None and int(body) == curr_user.verification_code:
+    elif curr_user.verified == "EMAIL_SENT" and check_valid_code(phone_number, body) == True:
         # update verified state to "VERIFIED"
         curr_user.verified = "VERIFIED"
         db.session.commit()
 
         message = verify(phone_number, body)
-    elif curr_user.verified == "EMAIL_SENT" and re.search('[a-zA-Z]', body) == None and int(body) != curr_user.verification_code:
+    elif curr_user.verified == "EMAIL_SENT" and check_valid_code(phone_number, body) == False:
         # update verified so new email is sent
         curr_user.verified = "NONE"
         db.session.commit()
