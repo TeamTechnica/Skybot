@@ -31,12 +31,6 @@ db = SQLAlchemy(app)
 
 from database import *
 
-# variables for matching
-cur_fltDate = None
-cur_fltTime = None
-cur_airport = None
-cur_max = None
-
 # variable for uni integrity checking
 airports = ["JFK", "LGA", "EWR"]
 
@@ -145,11 +139,7 @@ def verify(pnumber, body):
 
     Returns: TwiML to send to user
     """
-    global cur_fltDate, cur_fltTime, cur_airport, cur_max, airports
-    print("cur" + str(cur_fltDate))
-    print("cur" + str(cur_fltTime))
-    print("cur" + str(cur_airport))
-    print("cur" + str(cur_max))
+
     # triggered when they send the correct verification code
     resp = MessagingResponse()
 
@@ -172,8 +162,12 @@ def verify(pnumber, body):
             resp.message("""Please enter Date of Flight Departure in
                 following format MM-DD-YYYY""")
             cur_airport = str(airports[int(body) - 1])
+            new_flight(cur_airport, row.id)
             print("Flight Airport in method" + str(cur_airport))
             row.verified = "DATE_INFO"
+            db.session.commit()
+            flight = db.session.query(Flight).filter(Flight.passenger_id == row.id).last()
+            flight.departure_time = int(cur_airport)
             db.session.commit()
     elif str(row.verified) == "DATE_INFO":
         valid, str_date = parse_date(body)
@@ -183,6 +177,9 @@ def verify(pnumber, body):
             resp.message("""Please enter flight time in following Military
                 time format HHMMSS""")
             row.verified = "FLIGHT_TIM"
+            db.session.commit()
+            flight = db.session.query(Flight).filter(Flight.passenger_id == row.id).last()
+            flight.flight_date = int(cur_fltDate)
             db.session.commit()
         else:
             resp.message("""Incorrect Format. Please enter in following format
@@ -197,6 +194,9 @@ def verify(pnumber, body):
             print("Flight Time in method" + str(cur_fltTime))
             row.verified = "FINISHED"
             db.session.commit()
+            flight = db.session.query(Flight).filter(Flight.passenger_id == row.id).last()
+            flight.departure_time = int(cur_fltTime)
+            db.session.commit()
         else:
             resp.message(
                 """Incorrect Format. Please enter in milliary format HHMMSS""",
@@ -204,16 +204,8 @@ def verify(pnumber, body):
     elif str(row.verified) == "FINISHED":
         valid, str_max = parse_max(body)
         cur_max = int(str_max)
-        print("Flight passengers " + str(cur_max))
-
-        print("This is the row")
-        print(row.verified)
-        print("Flight Time " + str(cur_fltTime))
-        print("Flight Date " + str(cur_fltDate))
-        print("Flight passengers " + str(cur_max))
-        print("Flight Airport " + str(cur_airport))
         if valid is True:
-            matches, match_nums = matchFound(row)
+            matches, match_nums = matchFound(row, flight, cur_max)
             resp = send_matches(matches, match_nums)
         else:
             resp.message(
@@ -351,6 +343,23 @@ def new_user(phone_number):
     return str(resp)
 
 
+def new_flight(current_airport, user_id):
+    """ inserts a new flight
+
+    Keyword arguments:
+    current_airport -- user's airport
+    user_id -- user's id
+    """
+    # create & insert new user into database
+    new_flight = Flight(
+        airport=current_airport, flight_date=-1,
+        departure_time=-1, passenger_id=user_id,
+        match_id=None,
+    )
+    db.session.add(new_flight)
+    db.session.commit()
+
+
 def check_uni(body):
     """
     Handles checking if uni is valid or not
@@ -391,7 +400,7 @@ def sms_reply():
     return str(out_message)
 
 
-def matchFound(cur_user):
+def matchFound(cur_user, flight, cur_max):
     """ Matches users together to take a cab together
 
     Returns: 
@@ -399,33 +408,24 @@ def matchFound(cur_user):
         match_nums: phone numbers for each matched user
     """
 
-    global cur_fltDate, cur_fltTime, cur_airport, cur_max
-    # Stores the user, their flight time, date, airport,
-    # and prefered max number of additional passengers
-    current_user = eval('cur_user')
-    current_fltDate = eval('cur_fltDate')
-    current_fltTime = eval('cur_fltTime')
-    current_airport = eval('cur_airport')
-    current_maxPass = eval('cur_max')
-
     # If their max  passengers is 1, it queries fligths that are 1
     # hours within the flight depature that that were not matched.
-    if current_maxPass == 1:
+    if cur_max == 1:
         matched_flight = db.session.query(Flight).filter(
-            Flight.flight_date == current_fltDate, Flight.passenger_id != current_user.id, Flight.departure_time.between(
-                (current_fltTime - 100), (current_fltTime + 100),
-            ), Flight.airport == current_airport, (Flight.match_id == None),
+            Flight.flight_date == flight.flight_date, Flight.passenger_id != cur_user.id, Flight.departure_time.between(
+                (flight.departure_time - 100), (flight.departure_time + 100),
+            ), Flight.airport == flight.airport, (Flight.match_id == None),
         ).first()  # getting all flights with the same departure date
 
     # If their max  passengers is 2, it queries fligths that are 1
     # hours within the flight depature that that were not matched
 
-    if current_maxPass == 2:
+    if cur_max == 2:
 
         matched_flight = db.session.query(Flight).filter(
-            Flight.flight_date == current_fltDate, Flight.passenger_id != current_user.id, Flight.departure_time.between(
-                (current_fltTime-100), (current_fltTime + 100),
-            ), Flight.airport == current_airport, (Flight.match_id == None),
+            Flight.flight_date == flight.flight_date, Flight.passenger_id != cur_user.id, Flight.departure_time.between(
+                (flight.departure_time-100), (flight.departure_time + 100),
+            ), Flight.airport == flight.airport, (Flight.match_id == None),
         ).first()
 
         # If there were no rides, that fit that criteria then
@@ -437,9 +437,9 @@ def matchFound(cur_user):
             available_rides = []
 
             previously_matched_flights = db.session.query(Flight).filter(
-                Flight.flight_date == current_fltDate, Flight.departure_time.between(
-                    (current_fltTime), (current_fltTime + 100),
-                ), Flight.airport == current_airport, (Flight.match_id != None),
+                Flight.flight_date == flight.flight_date, Flight.departure_time.between(
+                    (flight.departure_time), (flight.departure_time + 100),
+                ), Flight.airport == flight.airport, (Flight.match_id != None),
             )
 
             for x in previously_matched_flights:
@@ -456,33 +456,17 @@ def matchFound(cur_user):
     # added to the db and an empty list is returned
 
     if matched_flight == None:
-        user_flight_data = Flight(
-            airport=current_airport, flight_date=current_fltDate,
-            departure_time=current_fltTime, passenger_id=current_user.id,
-            match_id=None,
-        )
-        db.session.add(user_flight_data)
-        db.session.commit()
-
         return [], []
 
     # Otherwise
     else:
 
-        # First user flight data is added to DB
-        user_flight_data = Flight(
-            airport=current_airport, flight_date=current_fltDate,
-            departure_time=current_fltTime, passenger_id=current_user.id,
-            match_id=None,
-        )
-        db.session.add(user_flight_data)
-        db.session.commit()
 
         # If the user was matched to a flight that was not previously matched
         if matched_flight.match_id == None:
 
-            match_airport = current_airport
-            match_date = current_fltDate
+            match_airport = flight.airport
+            match_date = flight.flight_date
 
             matched_passenger_id = matched_flight.passenger_id
 
@@ -492,12 +476,12 @@ def matchFound(cur_user):
                 User.id == matched_passenger_id,
             ).first()
             match_availableSeats = (
-                min(int(current_maxPass), int(matched_user.max_passengers))
+                min(int(cur_max), int(matched_user.max_passengers))
             ) - 1
 
             # Finds the rider with the earliest departure time and subtracts two hours
             match_departTime = (min(
-                int(current_fltTime), int(
+                int(flight.departure_time), int(
                     matched_flight.departure_time,
                 ),
             )) - 200

@@ -85,9 +85,9 @@ def sms_reply():
 
 ## Matching Algorithm
 
-The matching algorithm takes three criteria when considering matches: 
+The matching algorithm takes four criteria when considering matches: 
 
 1. The location of departure, i.e. JFK vs LGA vs EQR
 2. The date of departure
 3. The time of departure
-
+4. The number of passengers
