@@ -2,25 +2,21 @@ import datetime
 import os
 import random
 import re
+import unittest
+from datetime import datetime
 
 import sendgrid
+import sqlalchemy
 from flask import Flask
 from flask import redirect
 from flask import request
 from flask_sqlalchemy import SQLAlchemy
 from sendgrid.helpers.mail import *
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from twilio.twiml.messaging_response import MessagingResponse
-
-import unittest
-from datetime import datetime
-
-import sqlalchemy
-from sqlalchemy import create_engine
 from sqlalchemy import exists
 from sqlalchemy.orm import sessionmaker
 from twilio.rest import Client
+from twilio.twiml.messaging_response import MessagingResponse
 
 from cost import *
 
@@ -45,9 +41,9 @@ from database import *
 cur_fltDate = None
 cur_fltTime = None
 cur_airport = None
+cur_max = None
 
 # variable for uni integrity checking
-uni_entered = False
 
 airports = ["JFK", "LGA", "EWR"]
 
@@ -57,7 +53,9 @@ def notify_user(phone_number, unis):
     message = client.messages.create(
         to=phone_number,
         from_=os.getenv('SKYBOT_TWILIO_NUM'),
-        body="Your matches are " + unis + ". Have a great day!")
+        body="your matches are " + unis + ". Have a great day!",
+    )
+
 
 def send_matches(match_unis, match_nums):
     """Handles returning matching unis to user
@@ -67,9 +65,10 @@ def send_matches(match_unis, match_nums):
     resp = MessagingResponse()
     unis = ""
 
-    if len(match_unis) == 2:
-        resp.message("""Sorry I was not able to find any matches.
-            I will keep looking though!""")
+    if len(match_unis) == 0:
+        resp.message(
+            """No matches for you right now, but we'll send you an update if there's a match!""",
+        )
     else:
         for x in range(0, len(match_unis)-2):
             unis = unis + str(match_unis[x]) + " "
@@ -90,29 +89,28 @@ def parse_date(date_entry):
     Returns: Boolean if valid and date string for matching
     if valid
     """
-    valid = True
     cur_date = datetime.datetime.now()
     flt_date = str(date_entry)
 
     if re.match(r"[0-9]*-[0-9]*-[0-9]*", flt_date) is not None:
         date_str = flt_date.replace('-', '')
     else:
-        valid = False
-        return valid, ""
+        return False, ""
 
     entry_date = datetime.datetime(
         int(date_str[4:8]), int(date_str[0:2]), int(date_str[2:4]),
     )
     if (
-        len(date_str) > 8 or len(date_str) < 1 or int(date_str[0:2]) < 0 or int(date_str[0:2]) > 12 or
-        int(date_str[2:4]) < 1 or int(
-            date_str[2:4],
-        ) > 31 or entry_date < cur_date
+        len(date_str) > 8 or len(date_str) < 1 or
+        int(date_str[0:2]) < 0 or
+        int(date_str[0:2]) > 12 or
+        int(date_str[2:4]) < 1 or
+        int(date_str[2:4]) > 31 or
+        entry_date < cur_date
     ):
-        valid = False
-        return valid, ""
+        return False, ""
     else:
-        return valid, date_str
+        return True, date_str
 
 
 def parse_time(body):
@@ -122,18 +120,16 @@ def parse_time(body):
     Returns: Boolean if valid and date string for matching
     if valid
     """
-    valid = True
+    print("Body: " + str(body))
     time_ent = body
     if (
-        len(time_ent) < 6 or len(time_ent) > 6 or int(time_ent[0:2]) > 24 or int(time_ent[0:2]) < 1 or
-        int(time_ent[2:4]) < 1 or int(time_ent[2:4]) > 60 or int(
-            time_ent[4:6],
-        ) < 1 or int(time_ent[4:6]) > 60
+        len(time_ent) != 6 or int(time_ent[0:2]) > 24 or int(time_ent[0:2]) < 1 or
+        int(time_ent[2:4]) < 1 or int(time_ent[2:4]) > 60 or int(time_ent[4:6]) < 1 or
+        int(time_ent[4:6]) > 60
     ):
-        valid = False
-        return valid, ""
+        return False, ""
     else:
-        return valid, time_ent
+        return True, time_ent
 
 
 def parse_max(body):
@@ -143,14 +139,12 @@ def parse_max(body):
     Returns: Boolean if valid and time string for matching
     if valid
     """
-    valid = True
     max_entry = body
 
     if int(max_entry) > 2 or int(max_entry) < 1:
-        valid = False
-        return valid, ""
+        return False, ""
     else:
-        return valid, max_entry
+        return True, int(max_entry)
 
 
 def verify(pnumber, body):
@@ -158,11 +152,13 @@ def verify(pnumber, body):
 
     Returns: TwiML to send to user
     """
-    global cur_fltDate, cur_fltTime, cur_airport, airports
+    global cur_fltDate, cur_fltTime, cur_airport, cur_max, airports
     # triggered when they send the correct verification code
     resp = MessagingResponse()
 
     row = db.session.query(User).filter(User.phone_number == pnumber).first()
+    print("This is the row")
+    print(row.verified)
 
     if str(row.verified) == "VERIFIED":
         resp.message("""Thanks for verifying! Let's get started with your
@@ -179,12 +175,14 @@ def verify(pnumber, body):
             resp.message("""Please enter Date of Flight Departure in
                 following format MM-DD-YYYY""")
             cur_airport = str(airports[int(body) - 1])
+            print("Flight Airport in method" + str(cur_airport))
             row.verified = "DATE_INFO"
             db.session.commit()
     elif str(row.verified) == "DATE_INFO":
         valid, str_date = parse_date(body)
         if valid is True:
             cur_fltDate = int(str_date)
+            print("Flight Date in method " + str(cur_fltDate))
             resp.message("""Please enter flight time in following Military
                 time format HHMMSS""")
             row.verified = "FLIGHT_TIM"
@@ -197,8 +195,9 @@ def verify(pnumber, body):
         if valid is True:
             resp.message("""Last thing, please enter the max number of
             passengers you're willing to ride with as a number. Ex. 2""")
-
+            print(str_time)
             cur_fltTime = int(str_time)
+            print("Flight Time in method" + str(cur_fltTime))
             row.verified = "FINISHED"
             db.session.commit()
         else:
@@ -207,10 +206,17 @@ def verify(pnumber, body):
             )
     elif str(row.verified) == "FINISHED":
         valid, str_max = parse_max(body)
+        cur_max = int(str_max)
+        print("Flight passengers " + str(cur_max))
+
+        print("This is the row")
+        print(row.verified)
+        print("Flight Time " + str(cur_fltTime))
+        print("Flight Date " + str(cur_fltDate))
+        print("Flight passengers " + str(cur_max))
+        print("Flight Airport " + str(cur_airport))
         if valid is True:
-            matches, match_nums = matchFound(
-                row, cur_fltDate, cur_fltTime, cur_airport, int(str_max),
-            )
+            matches, match_nums = matchFound(row)
             resp = send_matches(matches, match_nums)
         else:
             resp.message(
@@ -228,6 +234,10 @@ def send_verify_email(uni, email, pnumber):
 
     Returns: TwiML to send to user
     """
+    if check_uni(uni) is True:
+        pass
+    else:
+        return str(error("Invalid uni: Send it again."))
 
     sg = sendgrid.SendGridAPIClient(os.getenv('SENDGRID_TOKEN'))
 
@@ -249,8 +259,9 @@ def send_verify_email(uni, email, pnumber):
     response = sg.client.mail.send.post(request_body=mail.get())
 
     resp = MessagingResponse()
-    resp.message("""Check your email for a verification email
-            and text us the code""")
+    resp.message(
+        """Check your email for a verification email and text us the code""",
+    )
 
     # update email verified
     row.verified = "EMAIL_SENT"
@@ -266,8 +277,9 @@ def reverify_uni():
     Returns: TwiML to send to user
     """
     resp = MessagingResponse()
-    resp.message("""Sorry the verification_code does not match.
-        Please enter your uni again""")
+    resp.message(
+        """Sorry the verification_code does not match. Please enter your uni again""",
+    )
     return str(resp)
 
 
@@ -299,6 +311,7 @@ def exist_user(phone_number, body):
 
     # if verify state is NONE, call send email function
     if curr_user.verified == 'NONE':
+        # email is not verified
         message = send_verify_email(body, body + "@columbia.edu", phone_number)
     elif curr_user.verified == "EMAIL_SENT" and int(body) == curr_user.verification_code:
         # update verified state to "VERIFIED"
@@ -311,7 +324,6 @@ def exist_user(phone_number, body):
         curr_user.verified = "NONE"
         db.session.commit()
 
-        message = reverify_uni()
     elif str(curr_user.verified) in ["VERIFIED", "AIRPORT_IN", "FLIGHT_TIM", "DATE_INFO", "FINISHED"]:
         message = verify(phone_number, body)
     else:
@@ -327,9 +339,6 @@ def new_user(phone_number):
 
     Returns: TwiML to send to user
     """
-    global uni_entered
-
-    uni_entered = True
     # create & insert new user into database
     new_user = User(
         phone_number=phone_number,
@@ -364,25 +373,12 @@ def check_uni(body):
     return valid_uni
 
 
-def remove_user(pnumber):
-    """
-    Handles removing a user from table
-
-    Returns nothing, removes user from DB
-    """
-    user = User.query.filter_by(phone_number=str(pnumber)).first()
-    if user is not None:
-        db.session.delete(user)
-        db.session.commit()
-
-
 @app.route("/sms", methods=['GET', 'POST'])
 def sms_reply():
     """ Handles text communication with users
 
     Returns: TwiML to send to user
     """
-    global uni_entered
     # gets phone number of user
     pnumber = request.values.get('From', None)
 
@@ -392,33 +388,28 @@ def sms_reply():
         out_message = new_user(pnumber)
     else:
         body = request.values.get('Body', None)
-        if uni_entered is True:
-            uni_entered = False
-            valid = check_uni(body)
-            if valid is False:
-                remove_user(pnumber)
-                return str(error("Invalid uni!"))
 
         out_message = exist_user(pnumber, body)
 
     return str(out_message)
 
 
-def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
+def matchFound(cur_user):
 
+    global cur_fltDate, cur_fltTime, cur_airport, cur_max
     # Stores the user, their flight time, date, airport,
     # and prefered max number of additional passengers
-    current_user = cur_user
-    current_fltDate = cur_fltDate
-    current_fltTime = cur_fltTime
-    current_airport = cur_airport
-    current_maxPass = cur_maxPass
+    current_user = eval('cur_user')
+    current_fltDate = eval('cur_fltDate')
+    current_fltTime = eval('cur_fltTime')
+    current_airport = eval('cur_airport')
+    current_maxPass = eval('cur_max')
 
     # If their max  passengers is 1, it queries fligths that are 1
     # hours within the flight depature that that were not matched.
     if current_maxPass == 1:
         matched_flight = db.session.query(Flight).filter(
-            Flight.flight_date == current_fltDate, Flight.departure_time.between(
+            Flight.flight_date == current_fltDate, Flight.passenger_id != current_user.id, Flight.departure_time.between(
                 (current_fltTime - 100), (current_fltTime + 100),
             ), Flight.airport == current_airport, (Flight.match_id == None),
         ).first()  # getting all flights with the same departure date
@@ -429,9 +420,9 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
     if current_maxPass == 2:
 
         matched_flight = db.session.query(Flight).filter(
-            Flight.flight_date == current_fltDate, Flight.departure_time.between(
+            Flight.flight_date == current_fltDate, Flight.passenger_id != current_user.id, Flight.departure_time.between(
                 (current_fltTime-100), (current_fltTime + 100),
-            ), Flight.airport == current_airport, (Flight.match_id == None)
+            ), Flight.airport == current_airport, (Flight.match_id == None),
         ).first()
 
         # If there were no rides, that fit that criteria then
@@ -445,7 +436,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
             previously_matched_flights = db.session.query(Flight).filter(
                 Flight.flight_date == current_fltDate, Flight.departure_time.between(
                     (current_fltTime), (current_fltTime + 100),
-                ), Flight.airport == current_airport, (Flight.match_id != None)
+                ), Flight.airport == current_airport, (Flight.match_id != None),
             )
 
             for x in previously_matched_flights:
@@ -470,7 +461,7 @@ def matchFound(cur_user, cur_fltDate, cur_fltTime, cur_airport, cur_maxPass):
         db.session.add(user_flight_data)
         db.session.commit()
 
-        return []
+        return [], []
 
     # Otherwise
     else:
