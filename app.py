@@ -109,8 +109,10 @@ def parse_time(body):
     """
     print("Body: " + str(body))
     time_ent = body
-    if (
-        len(time_ent) != 6 or re.search('[a-zA-Z]', time_ent) == None or
+    if re.search('[a-zA-Z]', time_ent) is not None:
+        return False, ""
+    elif(
+        len(time_ent) != 6 or
         int(time_ent[0:2].lstrip("0")) > 24 or int(time_ent[0:2].lstrip("0")) < 1 or
         int(time_ent[2:4].lstrip("0")) < 1 or int(time_ent[2:4].lstrip("0")) > 60 or 
         int(time_ent[4:6].lstrip("0")) < 1 or
@@ -130,7 +132,7 @@ def parse_max(body):
     """
     max_entry = body
 
-    if re.search('[a-zA-Z]', max_entry) == None or int(max_entry) > 2 or int(max_entry) < 1:
+    if (re.search('[a-zA-Z]', max_entry) is not None) and (int(max_entry) > 2 or int(max_entry) < 1):
         return False, ""
     else:
         return True, int(max_entry)
@@ -155,7 +157,7 @@ def verify(pnumber, body):
         row.verified = "AIRPORT_IN"
         db.session.commit()
     elif str(row.verified) == "AIRPORT_IN":
-        if re.search('[a-zA-Z]', body) == None or int(body) < 1 or int(body) > 3:
+        if (re.search('[a-zA-Z]', body) is not None) and (int(body) < 1 or int(body) > 3):
             resp.message("""Incorrect Format. Please enter 1 for JFK, 2 for
                 LGA or 3 for EWR""")
         else:
