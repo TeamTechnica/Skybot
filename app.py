@@ -24,18 +24,12 @@ from cost import *
 app = Flask(__name__)
 app.config.from_object(['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://localhost/site"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://ehepwtnqjcfntn:04461d661ce43b16602000fb490e32ece1f3558bddac8f4c6059886544f7c7cd@ec2-107-21-125-209.compute-1.amazonaws.com:5432/d6uqqsindhtp99'
 
 db = SQLAlchemy(app)
 
 from database import *
-
-# engine = create_engine('postgresql://localhost/site')
-# Session = sessionmaker(autoflush=True, autocommit=False, bind=engine)
-# conn = engine.connect()
-# session = Session(bind=conn)
 
 # variables for matching
 cur_fltDate = None
@@ -44,7 +38,6 @@ cur_airport = None
 cur_max = None
 
 # variable for uni integrity checking
-
 airports = ["JFK", "LGA", "EWR"]
 
 
@@ -395,6 +388,12 @@ def sms_reply():
 
 
 def matchFound(cur_user):
+    """ Matches users together to take a cab together
+
+    Returns: 
+        match_unis: UNIs for each matched user
+        match_nums: phone numbers for each matched user
+    """
 
     global cur_fltDate, cur_fltTime, cur_airport, cur_max
     # Stores the user, their flight time, date, airport,

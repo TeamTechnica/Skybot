@@ -17,6 +17,7 @@ Using our matching algorithm, SkyBot accurately matches students with the closes
 SkyBot aims to provide a simple user interface to connect people in order to make the process of getting to your desired destination less of a hassle.
 
 ## How to use SkyBot
+
 With Skybot, it is easy to find your next rideshare to the airport. Just following the steps below:
 1. Text Skybot "hello" or any other greeting of your choice at 667-401-4282
 2. Skybot will then prompt you for your Columbia uni-- please respond with your Columbia uni.
@@ -73,7 +74,6 @@ We used Twilio’s Programmable SMS to set this up as an SMS service. Specifical
 def sms_reply():
 ```
 
-
 This function is triggered whenever a message is sent to our Twilio number. With `requests.values.get`, we retrieve several attributes associated with the message received from a user, including their phone number. To indicate this, we made the first parameter `From`; this yields a result in the format “+1XXXXXXXXXX.”
 
 ``` python
@@ -81,3 +81,13 @@ This function is triggered whenever a message is sent to our Twilio number. With
 def sms_reply():
     body = request.values.get('From', None)
 ```
+
+
+## Matching Algorithm
+
+The matching algorithm takes three criteria when considering matches: 
+
+1. The location of departure, i.e. JFK vs LGA vs EQR
+2. The date of departure
+3. The time of departure
+
