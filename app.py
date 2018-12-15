@@ -132,7 +132,9 @@ def parse_max(body):
     """
     max_entry = body
 
-    if (re.search('[a-zA-Z]', max_entry) is not None) and (int(max_entry) > 2 or int(max_entry) < 1):
+    if re.search('[a-zA-Z]', max_entry) is not None:
+        return False, ""
+    elif: int(max_entry) > 2 or int(max_entry) < 1:
         return False, ""
     else:
         return True, int(max_entry)
@@ -157,7 +159,10 @@ def verify(pnumber, body):
         row.verified = "AIRPORT_IN"
         db.session.commit()
     elif str(row.verified) == "AIRPORT_IN":
-        if (re.search('[a-zA-Z]', body) is not None) and (int(body) < 1 or int(body) > 3):
+        if re.search('[a-zA-Z]', body) is not None:
+            resp.message("""No letters. Please enter 1 for JFK, 2 for
+                LGA or 3 for EWR""")
+        elif int(body) < 1 or int(body) > 3:
             resp.message("""Incorrect Format. Please enter 1 for JFK, 2 for
                 LGA or 3 for EWR""")
         else:
