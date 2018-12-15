@@ -144,8 +144,6 @@ def verify(pnumber, body):
     resp = MessagingResponse()
 
     row = db.session.query(User).filter(User.phone_number == pnumber).first()
-    print("This is the row")
-    print(row.verified)
 
     if str(row.verified) == "VERIFIED":
         resp.message("""Thanks for verifying! Let's get started with your
@@ -163,7 +161,6 @@ def verify(pnumber, body):
                 following format MM-DD-YYYY""")
             cur_airport = str(airports[int(body) - 1])
             new_flight(cur_airport, row.id)
-            print("Flight Airport in method" + str(cur_airport))
             row.verified = "DATE_INFO"
             db.session.commit()
             flight = db.session.query(Flight).filter(Flight.passenger_id == row.id).last()
@@ -173,7 +170,7 @@ def verify(pnumber, body):
         valid, str_date = parse_date(body)
         if valid is True:
             cur_fltDate = int(str_date)
-            print("Flight Date in method " + str(cur_fltDate))
+            
             resp.message("""Please enter flight time in following Military
                 time format HHMMSS""")
             row.verified = "FLIGHT_TIM"
@@ -189,9 +186,9 @@ def verify(pnumber, body):
         if valid is True:
             resp.message("""Last thing, please enter the max number of
             passengers you're willing to ride with as a number. Ex. 2""")
-            print(str_time)
+            
             cur_fltTime = int(str_time)
-            print("Flight Time in method" + str(cur_fltTime))
+            
             row.verified = "FINISHED"
             db.session.commit()
             flight = db.session.query(Flight).filter(Flight.passenger_id == row.id).last()
@@ -204,6 +201,7 @@ def verify(pnumber, body):
     elif str(row.verified) == "FINISHED":
         valid, str_max = parse_max(body)
         cur_max = int(str_max)
+
         if valid is True:
             matches, match_nums = matchFound(row, flight, cur_max)
             resp = send_matches(matches, match_nums)
@@ -407,7 +405,6 @@ def matchFound(cur_user, flight, cur_max):
         match_unis: UNIs for each matched user
         match_nums: phone numbers for each matched user
     """
-
     # If their max  passengers is 1, it queries fligths that are 1
     # hours within the flight depature that that were not matched.
     if cur_max == 1:
