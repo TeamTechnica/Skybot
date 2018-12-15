@@ -304,13 +304,13 @@ def exist_user(phone_number, body):
     if curr_user.verified == 'NONE':
         # email is not verified
         message = send_verify_email(body, body + "@columbia.edu", phone_number)
-    elif curr_user.verified == "EMAIL_SENT" and int(body) == curr_user.verification_code:
+    elif curr_user.verified == "EMAIL_SENT" and re.search('[a-zA-Z]', body) == None and int(body) == curr_user.verification_code:
         # update verified state to "VERIFIED"
         curr_user.verified = "VERIFIED"
         db.session.commit()
 
         message = verify(phone_number, body)
-    elif curr_user.verified == "EMAIL_SENT" and int(body) != curr_user.verification_code:
+    elif curr_user.verified == "EMAIL_SENT" and re.search('[a-zA-Z]', body) == None and int(body) != curr_user.verification_code:
         # update verified so new email is sent
         curr_user.verified = "NONE"
         db.session.commit()
