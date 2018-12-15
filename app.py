@@ -176,48 +176,55 @@ def verify(pnumber, body):
         TwiML: Twilio text message to send to user
     """
     resp = MessagingResponse()
-
+    # filters database for current user entry
     row = db.session.query(User).filter(User.phone_number == pnumber).first()
 
+    # once a user is verified, send the text thanking & prompting for airport
     if str(row.verified) == "VERIFIED":
-        resp.message("""Thanks for verifying! Let's get started with your
-        flight information. Please enter the Airport
-        (1)JFK (2)LGA (3)EQR""")
+        resp.message("""Thanks for verifying! Let's get started with your flight information. Please enter the Airport: 
+            (1)JFK (2)LGA (3)EQR""")
 
-        row.verified = "AIRPORT_IN"
+        row.verified = "AIRPORT_IN" # switch to next state 
         db.session.commit()
+    # error checking for airport
     elif str(row.verified) == "AIRPORT_IN":
+        # tells user that they need to submit a number instead of letters
         if re.search('[a-zA-Z]', body) is not None:
-            resp.message("""No letters. Please enter 1 for JFK, 2 for
-                LGA or 3 for EWR""")
+            resp.message("""No letters. Please enter 1 for JFK, 2 for LGA or 3 for EWR""")
+        # tells user that they have the incorrect format
         elif int(body) < 1 or int(body) > 3:
-            resp.message("""Incorrect Format. Please enter 1 for JFK, 2 for
-                LGA or 3 for EWR""")
+            resp.message("""Incorrect Format. Please enter 1 for JFK, 2 for LGA or 3 for EWR""")
         else:
+            # once we have the airport, we prompt for the date info
             resp.message("""Please enter Date of Flight Departure in
                 following format MM-DD-YYYY""")
             cur_airport = str(airports[int(body) - 1])
+            # once the airport is input, we create an initial flight instance
             new_flight(cur_airport, row.id)
+            # switch to next state
             row.verified = "DATE_INFO"
             db.session.commit()
+            # add airport to user's flight db entry -- might not need this?
             flight = db.session.query(Flight).order_by(Flight.id.desc()).filter(Flight.passenger_id == row.id).first()
             flight.airport = cur_airport
             db.session.commit()
+    # once a user has input the airport, we retrieve the date
     elif str(row.verified) == "DATE_INFO":
         valid, str_date = parse_date(body)
+        # if the date format is correct
         if valid is True:
             cur_fltDate = int(str_date)
             
-            resp.message("""Please enter flight time in following Military
-                time format HHMMSS""")
-            row.verified = "FLIGHT_TIM"
+            resp.message("""Please enter flight time in following Military time format HHMMSS""")
+            row.verified = "FLIGHT_TIM" # update to next state
             db.session.commit()
+            # update the flight db entry 
             flight = db.session.query(Flight).order_by(Flight.id.desc()).filter(Flight.passenger_id == row.id).first()
             flight.flight_date = int(cur_fltDate)
             db.session.commit()
         else:
-            resp.message("""Incorrect Format. Please enter in following format
-                MM-DD-YYYY""")
+            # if incorrect format, let them know
+            resp.message("""Incorrect Format. Please enter in following format MM-DD-YYYY""")
     elif str(row.verified) == "FLIGHT_TIM":
         valid, str_time = parse_time(body)
         if valid is True:
