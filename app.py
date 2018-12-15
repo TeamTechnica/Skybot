@@ -146,16 +146,11 @@ def verify(pnumber, body):
     Returns: TwiML to send to user
     """
     global cur_fltDate, cur_fltTime, cur_airport, cur_max, airports
-    print("cur" + str(cur_fltDate))
-    print("cur" + str(cur_fltTime))
-    print("cur" + str(cur_airport))
-    print("cur" + str(cur_max))
+
     # triggered when they send the correct verification code
     resp = MessagingResponse()
 
     row = db.session.query(User).filter(User.phone_number == pnumber).first()
-    print("This is the row")
-    print(row.verified)
 
     if str(row.verified) == "VERIFIED":
         resp.message("""Thanks for verifying! Let's get started with your
@@ -172,14 +167,14 @@ def verify(pnumber, body):
             resp.message("""Please enter Date of Flight Departure in
                 following format MM-DD-YYYY""")
             cur_airport = str(airports[int(body) - 1])
-            print("Flight Airport in method" + str(cur_airport))
+            
             row.verified = "DATE_INFO"
             db.session.commit()
     elif str(row.verified) == "DATE_INFO":
         valid, str_date = parse_date(body)
         if valid is True:
             cur_fltDate = int(str_date)
-            print("Flight Date in method " + str(cur_fltDate))
+            
             resp.message("""Please enter flight time in following Military
                 time format HHMMSS""")
             row.verified = "FLIGHT_TIM"
@@ -192,9 +187,9 @@ def verify(pnumber, body):
         if valid is True:
             resp.message("""Last thing, please enter the max number of
             passengers you're willing to ride with as a number. Ex. 2""")
-            print(str_time)
+            
             cur_fltTime = int(str_time)
-            print("Flight Time in method" + str(cur_fltTime))
+            
             row.verified = "FINISHED"
             db.session.commit()
         else:
@@ -204,14 +199,7 @@ def verify(pnumber, body):
     elif str(row.verified) == "FINISHED":
         valid, str_max = parse_max(body)
         cur_max = int(str_max)
-        print("Flight passengers " + str(cur_max))
-
-        print("This is the row")
-        print(row.verified)
-        print("Flight Time " + str(cur_fltTime))
-        print("Flight Date " + str(cur_fltDate))
-        print("Flight passengers " + str(cur_max))
-        print("Flight Airport " + str(cur_airport))
+        
         if valid is True:
             matches, match_nums = matchFound(row)
             resp = send_matches(matches, match_nums)
@@ -402,11 +390,16 @@ def matchFound(cur_user):
     global cur_fltDate, cur_fltTime, cur_airport, cur_max
     # Stores the user, their flight time, date, airport,
     # and prefered max number of additional passengers
-    current_user = eval('cur_user')
+    current_user = cur_user
     current_fltDate = eval('cur_fltDate')
     current_fltTime = eval('cur_fltTime')
     current_airport = eval('cur_airport')
     current_maxPass = eval('cur_max')
+
+    print("cur" + str(current_fltDate))
+    print("cur" + str(current_fltTime))
+    print("cur" + str(current_airport))
+    print("cur" + str(current_maxPass))
 
     # If their max  passengers is 1, it queries fligths that are 1
     # hours within the flight depature that that were not matched.
