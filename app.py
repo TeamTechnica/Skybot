@@ -310,6 +310,9 @@ def exist_user(phone_number, body):
         message = verify(phone_number, body)
     elif curr_user.verified == "EMAIL_SENT" and int(body) != curr_user.verification_code:
         # update verified so new email is sent
+        print("*******************************")
+        print("I'm getting to this coniditon\n")
+        print("*******************************")
         curr_user.verified = "NONE"
         db.session.commit()
 
@@ -319,6 +322,7 @@ def exist_user(phone_number, body):
         message = verify(phone_number, body)
     else:
         message = error("Something unexpected happened, please try later")
+    
     return message
 
 
