@@ -163,8 +163,8 @@ def verify(pnumber, body):
             new_flight(cur_airport, row.id)
             row.verified = "DATE_INFO"
             db.session.commit()
-            flight = db.session.query(Flight).filter(Flight.passenger_id == row.id).last()
-            flight.departure_time = int(cur_airport)
+            flight = db.session.query(Flight).order_by(Flight.id.desc()).filter(Flight.passenger_id == row.id).first()
+            flight.airport = cur_airport
             db.session.commit()
     elif str(row.verified) == "DATE_INFO":
         valid, str_date = parse_date(body)
@@ -175,7 +175,7 @@ def verify(pnumber, body):
                 time format HHMMSS""")
             row.verified = "FLIGHT_TIM"
             db.session.commit()
-            flight = db.session.query(Flight).filter(Flight.passenger_id == row.id).last()
+            flight = db.session.query(Flight).order_by(Flight.id.desc()).filter(Flight.passenger_id == row.id).first()
             flight.flight_date = int(cur_fltDate)
             db.session.commit()
         else:
@@ -191,7 +191,7 @@ def verify(pnumber, body):
             
             row.verified = "FINISHED"
             db.session.commit()
-            flight = db.session.query(Flight).filter(Flight.passenger_id == row.id).last()
+            flight = db.session.query(Flight).order_by(Flight.id.desc()).filter(Flight.passenger_id == row.id).first()
             flight.departure_time = int(cur_fltTime)
             db.session.commit()
         else:
@@ -201,6 +201,8 @@ def verify(pnumber, body):
     elif str(row.verified) == "FINISHED":
         valid, str_max = parse_max(body)
         cur_max = int(str_max)
+
+        flight = db.session.query(Flight).order_by(Flight.id.desc()).filter(Flight.passenger_id == row.id).first()
 
         if valid is True:
             matches, match_nums = matchFound(row, flight, cur_max)
@@ -495,7 +497,7 @@ def matchFound(cur_user, flight, cur_max):
             db.session.commit()
 
             # Updates the match ID for the user and matching flight
-            user_flight_data.ride = new_match
+            flight.ride = new_match
             matched_flight.ride = new_match
 
             # Creates a list of the riders' UNIs
@@ -516,7 +518,7 @@ def matchFound(cur_user, flight, cur_max):
         else:
 
             # Updates the users ride to be the matched flight's ride
-            user_flight_data.ride = matched_flight.ride
+            flight.ride = matched_flight.ride
 
             # Updates the number of available seats in the match
             shared_match_id = matched_flight.match_id
@@ -540,7 +542,7 @@ def matchFound(cur_user, flight, cur_max):
             ride_departure = earliest_flight.departure_time - 200
 
             match_unis.append(ride_departure)
-            match_unis.append(user_flight_data.airport)
+            match_unis.append(flight.airport)
 
             # returns list of UNIs in ride
             return match_unis, match_nums
