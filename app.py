@@ -89,10 +89,10 @@ def parse_date(date_entry):
     )
     if (
         len(date_str) > 8 or len(date_str) < 1 or
-        int(date_str[0:2]) < 0 or
-        int(date_str[0:2]) > 12 or
-        int(date_str[2:4]) < 1 or
-        int(date_str[2:4]) > 31 or
+        int(date_str[0:2].lstrip("0")) < 0 or
+        int(date_str[0:2].lstrip("0")) > 12 or
+        int(date_str[2:4].lstrip("0")) < 1 or
+        int(date_str[2:4].lstrip("0")) > 31 or
         entry_date < cur_date
     ):
         return False, ""
@@ -110,9 +110,11 @@ def parse_time(body):
     print("Body: " + str(body))
     time_ent = body
     if (
-        len(time_ent) != 6 or int(time_ent[0:2]) > 24 or int(time_ent[0:2]) < 1 or
-        int(time_ent[2:4]) < 1 or int(time_ent[2:4]) > 60 or int(time_ent[4:6]) < 1 or
-        int(time_ent[4:6]) > 60
+        len(time_ent) != 6 or re.search('[a-zA-Z]', time_ent) == None or
+        int(time_ent[0:2].lstrip("0")) > 24 or int(time_ent[0:2].lstrip("0")) < 1 or
+        int(time_ent[2:4].lstrip("0")) < 1 or int(time_ent[2:4].lstrip("0")) > 60 or 
+        int(time_ent[4:6].lstrip("0")) < 1 or
+        int(time_ent[4:6].lstrip("0")) > 60
     ):
         return False, ""
     else:
@@ -128,7 +130,7 @@ def parse_max(body):
     """
     max_entry = body
 
-    if int(max_entry) > 2 or int(max_entry) < 1:
+    if re.search('[a-zA-Z]', max_entry) == None or int(max_entry) > 2 or int(max_entry) < 1:
         return False, ""
     else:
         return True, int(max_entry)
@@ -153,7 +155,7 @@ def verify(pnumber, body):
         row.verified = "AIRPORT_IN"
         db.session.commit()
     elif str(row.verified) == "AIRPORT_IN":
-        if int(body) < 1 or int(body) > 3:
+        if re.search('[a-zA-Z]', body) == None or int(body) < 1 or int(body) > 3:
             resp.message("""Incorrect Format. Please enter 1 for JFK, 2 for
                 LGA or 3 for EWR""")
         else:
