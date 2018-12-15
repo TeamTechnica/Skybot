@@ -53,7 +53,7 @@ def notify_user(phone_number, unis):
     message = client.messages.create(
         to=phone_number,
         from_=os.getenv('SKYBOT_TWILIO_NUM'),
-        body="Your matches are " + unis + ". Have a great day!",
+        body="your matches are " + unis + ". Have a great day!",
     )
 
 
