@@ -199,12 +199,12 @@ def verify(pnumber, body):
                 """Incorrect Format. Please enter in milliary format HHMMSS""",
             )
     elif str(row.verified) == "FINISHED":
-        valid, str_max = parse_max(body)
-        cur_max = int(str_max)
+        valid, int_max = parse_max(body) 
 
         flight = db.session.query(Flight).order_by(Flight.id.desc()).filter(Flight.passenger_id == row.id).first()
 
         if valid is True:
+            cur_max = int_max
             matches, match_nums = matchFound(row, flight, cur_max)
             resp = send_matches(matches, match_nums)
         else:
