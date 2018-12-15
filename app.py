@@ -146,6 +146,10 @@ def verify(pnumber, body):
     Returns: TwiML to send to user
     """
     global cur_fltDate, cur_fltTime, cur_airport, cur_max, airports
+    print("cur" + str(cur_fltDate))
+    print("cur" + str(cur_fltTime))
+    print("cur" + str(cur_airport))
+    print("cur" + str(cur_max))
     # triggered when they send the correct verification code
     resp = MessagingResponse()
 
