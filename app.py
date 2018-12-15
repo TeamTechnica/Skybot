@@ -89,10 +89,10 @@ def parse_date(date_entry):
     )
     if (
         len(date_str) > 8 or len(date_str) < 1 or
-        int(date_str[0:2]) < 0 or
-        int(date_str[0:2]) > 12 or
-        int(date_str[2:4]) < 1 or
-        int(date_str[2:4]) > 31 or
+        int(date_str[0:2].lstrip("0")) < 0 or
+        int(date_str[0:2].lstrip("0")) > 12 or
+        int(date_str[2:4].lstrip("0")) < 1 or
+        int(date_str[2:4].lstrip("0")) > 31 or
         entry_date < cur_date
     ):
         return False, ""
@@ -109,10 +109,14 @@ def parse_time(body):
     """
     print("Body: " + str(body))
     time_ent = body
-    if (
-        len(time_ent) != 6 or int(time_ent[0:2]) > 24 or int(time_ent[0:2]) < 1 or
-        int(time_ent[2:4]) < 1 or int(time_ent[2:4]) > 60 or int(time_ent[4:6]) < 1 or
-        int(time_ent[4:6]) > 60
+    if re.search('[a-zA-Z]', time_ent) is not None:
+        return False, ""
+    elif(
+        len(time_ent) != 6 or
+        int(time_ent[0:2].lstrip("0")) > 24 or int(time_ent[0:2].lstrip("0")) < 1 or
+        int(time_ent[2:4].lstrip("0")) < 1 or int(time_ent[2:4].lstrip("0")) > 60 or 
+        int(time_ent[4:6].lstrip("0")) < 1 or
+        int(time_ent[4:6].lstrip("0")) > 60
     ):
         return False, ""
     else:
@@ -128,7 +132,9 @@ def parse_max(body):
     """
     max_entry = body
 
-    if int(max_entry) > 2 or int(max_entry) < 1:
+    if re.search('[a-zA-Z]', max_entry) is not None:
+        return False, ""
+    elif int(max_entry) > 2 or int(max_entry) < 1:
         return False, ""
     else:
         return True, int(max_entry)
@@ -153,7 +159,10 @@ def verify(pnumber, body):
         row.verified = "AIRPORT_IN"
         db.session.commit()
     elif str(row.verified) == "AIRPORT_IN":
-        if int(body) < 1 or int(body) > 3:
+        if re.search('[a-zA-Z]', body) is not None:
+            resp.message("""No letters. Please enter 1 for JFK, 2 for
+                LGA or 3 for EWR""")
+        elif int(body) < 1 or int(body) > 3:
             resp.message("""Incorrect Format. Please enter 1 for JFK, 2 for
                 LGA or 3 for EWR""")
         else:
@@ -199,12 +208,12 @@ def verify(pnumber, body):
                 """Incorrect Format. Please enter in milliary format HHMMSS""",
             )
     elif str(row.verified) == "FINISHED":
-        valid, str_max = parse_max(body)
-        cur_max = int(str_max)
+        valid, int_max = parse_max(body) 
 
         flight = db.session.query(Flight).order_by(Flight.id.desc()).filter(Flight.passenger_id == row.id).first()
 
         if valid is True:
+            cur_max = int_max
             matches, match_nums = matchFound(row, flight, cur_max)
             resp = send_matches(matches, match_nums)
         else:
@@ -284,6 +293,31 @@ def error(message):
     resp.message(error_message)
     return str(resp)
 
+def check_valid_code(pnumber, body):
+    """ Handles checking valid code
+
+    Keyword arguments:
+    phone_number -- user's phone number
+    body -- user's input code
+
+    Returns boolean
+    """
+    curr_user = db.session.query(User).filter_by(
+        phone_number=pnumber,
+    ).first()
+
+    if re.search('[a-zA-Z]', body) is None:
+        pass
+    else:
+        return False
+
+    if int(body) == curr_user.verification_code is False:
+        return False
+    else:
+        return True
+
+
+
 
 def exist_user(phone_number, body):
     """ Handles communication with existing Skybot users
@@ -302,21 +336,24 @@ def exist_user(phone_number, body):
     if curr_user.verified == 'NONE':
         # email is not verified
         message = send_verify_email(body, body + "@columbia.edu", phone_number)
-    elif curr_user.verified == "EMAIL_SENT" and int(body) == curr_user.verification_code:
+    elif curr_user.verified == "EMAIL_SENT" and check_valid_code(phone_number, body) == True:
         # update verified state to "VERIFIED"
         curr_user.verified = "VERIFIED"
         db.session.commit()
 
         message = verify(phone_number, body)
-    elif curr_user.verified == "EMAIL_SENT" and int(body) != curr_user.verification_code:
+    elif curr_user.verified == "EMAIL_SENT" and check_valid_code(phone_number, body) == False:
         # update verified so new email is sent
         curr_user.verified = "NONE"
         db.session.commit()
+
+        message = error("Sorry the code doesn't match. Please input uni again so we can send a new code")
 
     elif str(curr_user.verified) in ["VERIFIED", "AIRPORT_IN", "FLIGHT_TIM", "DATE_INFO", "FINISHED"]:
         message = verify(phone_number, body)
     else:
         message = error("Something unexpected happened, please try later")
+    
     return message
 
 
