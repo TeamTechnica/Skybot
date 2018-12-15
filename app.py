@@ -134,7 +134,7 @@ def parse_max(body):
 
     if re.search('[a-zA-Z]', max_entry) is not None:
         return False, ""
-    elif: int(max_entry) > 2 or int(max_entry) < 1:
+    elif int(max_entry) > 2 or int(max_entry) < 1:
         return False, ""
     else:
         return True, int(max_entry)
