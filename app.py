@@ -265,7 +265,8 @@ def send_verify_email(uni, email, pnumber):
     Keyword arguments:
     email -- user's email address
 
-    Returns: TwiML to send to user
+    Returns: 
+        TwiML: text message to send to user
     """
     if check_uni(uni) is True:
         pass
@@ -304,10 +305,10 @@ def send_verify_email(uni, email, pnumber):
 
 
 def reverify_uni():
-    """
-    Handles the case when wrong verification_code given
+    """ Handles the case when wrong verification_code given
 
-    Returns: TwiML to send to user
+    Returns: 
+        TwiML: text message to send to user
     """
     resp = MessagingResponse()
     resp.message(
@@ -317,10 +318,12 @@ def reverify_uni():
 
 
 def error(message):
-    """
-    Error Handler
-
-    Returns: TwiML to send to user
+    """ Sends error text message
+    
+    Args:
+        message (str): error type to send as a text
+    Returns:
+        TwiML: text message to send to user
     """
 
     resp = MessagingResponse()
@@ -331,11 +334,12 @@ def error(message):
 def check_valid_code(pnumber, body):
     """ Handles checking valid code
 
-    Keyword arguments:
-    phone_number -- user's phone number
-    body -- user's input code
+    Args:
+        pnumber (str): user's phone number
+        body (str): user's input code
 
-    Returns boolean
+    Returns:
+        bool: whether the verification code is correct or not
     """
     curr_user = db.session.query(User).filter_by(
         phone_number=pnumber,
@@ -352,16 +356,15 @@ def check_valid_code(pnumber, body):
         return True
 
 
-
-
 def exist_user(phone_number, body):
     """ Handles communication with existing Skybot users
 
-    Keyword arguments:
-    phone_number -- user's phone number
-    body -- user's text message
+    Args:
+        phone_number (str): user's phone number
+        body (str): user's text message
 
-    Returns: TwiML to send to user
+    Returns:
+        TwiML: text message to send to user
     """
     curr_user = db.session.query(User).filter_by(
         phone_number=phone_number,
@@ -381,12 +384,12 @@ def exist_user(phone_number, body):
         # update verified so new email is sent
         curr_user.verified = "NONE"
         db.session.commit()
-
+        # sends text message asking for UNI again
         message = error("Sorry the code doesn't match. Please input uni again so we can send a new code")
-
     elif str(curr_user.verified) in ["VERIFIED", "AIRPORT_IN", "FLIGHT_TIM", "DATE_INFO", "FINISHED"]:
         message = verify(phone_number, body)
     else:
+        # error condition if all else feels
         message = error("Something unexpected happened, please try later")
     
     return message
@@ -395,10 +398,11 @@ def exist_user(phone_number, body):
 def new_user(phone_number):
     """ Handles communication with new Skybot users
 
-    Keyword arguments:
-    phone_number -- user's phone number
+    Args:
+        phone_number (str): user's phone number
 
-    Returns: TwiML to send to user
+    Returns:
+        TwiML: text message to send to user
     """
     # create & insert new user into database
     new_user = User(
@@ -416,11 +420,11 @@ def new_user(phone_number):
 
 
 def new_flight(current_airport, user_id):
-    """ inserts a new flight
+    """ inserts a new flight into database
 
-    Keyword arguments:
-    current_airport -- user's airport
-    user_id -- user's id
+    Args:
+        current_airport (str): user's airport
+        user_id (str): user's id
     """
     # create & insert new user into database
     new_flight = Flight(
@@ -433,17 +437,22 @@ def new_flight(current_airport, user_id):
 
 
 def check_uni(body):
-    """
-    Handles checking if uni is valid or not
+    """ Handles checking if uni is valid or not
 
-    Returns: True or False depending on valid uni
+    Args:
+        body (str): user's text message
+    
+    Returns: 
+        bool: whether UNI is valid or not
     """
     valid_uni = True
 
+    # checks letter portion of UNI
     uni_chars = re.sub("[0-9]", '', body)
     if len(uni_chars) < 2 or len(uni_chars) > 3:
         valid_uni = False
 
+    # checks numbers of UNI
     uni_int = re.sub("[a-zA-Z]", "", body)
     if len(uni_int) != 4:
         valid_uni = False
@@ -475,9 +484,14 @@ def sms_reply():
 def matchFound(cur_user, flight, cur_max):
     """ Matches users together to take a cab together
 
+    Args:
+        cur_user (User): current user row
+        flight (Flight): current user's flight row
+        cur_max (int): number of max passengers 
+        
     Returns: 
-        match_unis: UNIs for each matched user
-        match_nums: phone numbers for each matched user
+        match_unis (list): UNIs for each matched user
+        match_nums (list): phone numbers for each matched user
     """
     # If their max  passengers is 1, it queries fligths that are 1
     # hours within the flight depature that that were not matched.
