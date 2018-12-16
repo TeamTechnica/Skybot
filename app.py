@@ -34,7 +34,7 @@ db = SQLAlchemy(app)
 airports = ["JFK", "LGA", "EWR"]
 
 
-def notify_user(phone_number, unis):
+def notify_user(phone_number, unis, cost):
     """ Notifies user of their match results
 
     Args:
@@ -48,11 +48,11 @@ def notify_user(phone_number, unis):
     message = client.messages.create(
         to=phone_number,
         from_=os.getenv('SKYBOT_TWILIO_NUM'),
-        body="your matches are " + unis + ". Have a great day!",
+        body="your matches are " + unis + " with an estimated cost of " + cost,
     )
 
 
-def send_matches(match_unis, match_nums):
+def send_matches(match_unis, match_nums, airport):
     """ Handles returning matching unis to user
 
     Args:
@@ -78,8 +78,10 @@ def send_matches(match_unis, match_nums):
 
         # iterates through list of matches and notifies the user of match
         for num in match_nums:
-            notify_user(num, unis)
+            notify_user(num, unis, cost)
 
+        # retrieve cost of ride
+        cost = get_cost(str(airport), len(match_nums))
         # texts text message to current user (we might not need this)
         reply = "Your matches are " + unis + ". Have a great day!"
         resp.message(reply)
@@ -146,7 +148,7 @@ def parse_time(body):
 
 def parse_max(body):
     """ Handles checking valid time entry
-    
+
     Args:
         body (str): text message containing max number of passengers
 
@@ -171,7 +173,7 @@ def verify(pnumber, body):
     Args:
         pnumber (str): current user's phone number
         body (str): current user's text message
-    Returns: 
+    Returns:
         TwiML: Twilio text message to send to user
     """
     resp = MessagingResponse()
@@ -180,9 +182,9 @@ def verify(pnumber, body):
 
     # once a user is verified, send the text thanking & prompting for airport
     if str(row.verified) == "VERIFIED":
-        resp.message("""Thanks for verifying! Let's get started with your flight information. Please enter the Airport: (1)JFK (2)LGA (3)EQR""")
+        resp.message("""Thanks for verifying! Let's get started with your flight information. Please enter the Airport: (1)JFK (2)LGA (3)EWR""")
 
-        row.verified = "AIRPORT_IN" # switch to next state 
+        row.verified = "AIRPORT_IN"  # switch to next state
         db.session.commit()
     # error checking for airport
     elif str(row.verified) == "AIRPORT_IN":
@@ -212,11 +214,11 @@ def verify(pnumber, body):
         # if the date format is correct
         if valid is True:
             cur_fltDate = int(str_date)
-            
+
             resp.message("""Please enter flight time in following Military time format HHMMSS""")
-            row.verified = "FLIGHT_TIM" # update to next state
+            row.verified = "FLIGHT_TIM"  # update to next state
             db.session.commit()
-            # update the flight db entry 
+            # update the flight db entry
             flight = db.session.query(Flight).order_by(Flight.id.desc()).filter(Flight.passenger_id == row.id).first()
             flight.flight_date = int(cur_fltDate)
             db.session.commit()
@@ -228,9 +230,9 @@ def verify(pnumber, body):
         if valid is True:
             resp.message("""Last thing, please enter the max number of
             passengers you're willing to ride with as a number. Ex. 2""")
-            
+
             cur_fltTime = int(str_time)
-            
+
             row.verified = "FINISHED"
             db.session.commit()
             flight = db.session.query(Flight).order_by(Flight.id.desc()).filter(Flight.passenger_id == row.id).first()
@@ -241,14 +243,14 @@ def verify(pnumber, body):
                 """Incorrect Format. Please enter in milliary format HHMMSS""",
             )
     elif str(row.verified) == "FINISHED":
-        valid, int_max = parse_max(body) 
+        valid, int_max = parse_max(body)
 
         flight = db.session.query(Flight).order_by(Flight.id.desc()).filter(Flight.passenger_id == row.id).first()
 
         if valid is True:
             cur_max = int_max
             matches, match_nums = matchFound(row, flight, cur_max)
-            resp = send_matches(matches, match_nums)
+            resp = send_matches(matches, match_nums, flight.airport)
         else:
             resp.message(
                 """Error, you can only enter between 1-2 passengers""",
@@ -263,7 +265,7 @@ def send_verify_email(uni, email, pnumber):
     Keyword arguments:
     email -- user's email address
 
-    Returns: 
+    Returns:
         TwiML: text message to send to user
     """
     if check_uni(uni) is True:
@@ -305,19 +307,19 @@ def send_verify_email(uni, email, pnumber):
 def reverify_uni():
     """ Handles the case when wrong verification_code given
 
-    Returns: 
+    Returns:
         TwiML: text message to send to user
     """
     resp = MessagingResponse()
     resp.message(
-        """Sorry the verification_code does not match. Please enter your uni again""",
+        "The verification code does not match. Please enter your UNI again",
     )
     return str(resp)
 
 
 def error(message):
     """ Sends error text message
-    
+
     Args:
         message (str): error type to send as a text
     Returns:
@@ -328,6 +330,7 @@ def error(message):
     error_message = "Error: " + str(message)
     resp.message(error_message)
     return str(resp)
+
 
 def check_valid_code(pnumber, body):
     """ Handles checking valid code
@@ -389,7 +392,7 @@ def exist_user(phone_number, body):
     else:
         # error condition if all else feels
         message = error("Something unexpected happened, please try later")
-    
+
     return message
 
 
@@ -439,7 +442,7 @@ def check_uni(body):
 
     Args:
         body (str): user's text message
-    
+
     Returns:
         bool: whether UNI is valid or not
     """
@@ -486,8 +489,8 @@ def matchFound(cur_user, flight, cur_max):
         cur_user (User): current user row
         flight (Flight): current user's flight row
         cur_max (int): number of max passengers
-        
-    Returns: 
+
+    Returns:
         match_unis (list): UNIs for each matched user
         match_nums (list): phone numbers for each matched user
     """
@@ -543,8 +546,6 @@ def matchFound(cur_user, flight, cur_max):
 
     # Otherwise
     else:
-
-
         # If the user was matched to a flight that was not previously matched
         if matched_flight.match_id == None:
 
