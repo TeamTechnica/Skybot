@@ -14,6 +14,7 @@ Using our matching algorithm, SkyBot accurately matches students with the closes
 
 SkyBot aims to provide a simple user interface to connect people in order to make the process of getting to your desired destination less of a hassle.
 
+
 ## How to use SkyBot
 
 With Skybot, it is easy to find your next rideshare to the airport. Just following the steps below:
@@ -22,6 +23,7 @@ With Skybot, it is easy to find your next rideshare to the airport. Just followi
 3. Skybot then emails your uni email a verification code. Please respond with that verification code.
 4. Upon having your uni verified, please provide the flight details Skybot requests, in the form she requests.
 5. Lastly, if there are matches for your rideshare, Skybot will share the uni's of the passengers on your ride. Otherwise, Skybot will keep your information on file in case someone with similar flight details as you, is later looking for a flight.
+
 
 ## Structure
 
@@ -49,6 +51,7 @@ With Skybot, it is easy to find your next rideshare to the airport. Just followi
 ├── migrations/		     		  # TO DO
 ├── submissions/				  # TO DO
 ```
+
 
 ## Technology Stack
 
@@ -89,3 +92,41 @@ The matching algorithm takes four criteria when considering matches:
 2. The date of departure
 3. The time of departure
 4. The number of passengers
+
+
+## Data Models
+
+### User
+
+| Attribute | Type |
+| --------- | ----------- |
+| id | Integer |
+| UNI | String |
+| max_passengers | Integer |
+| phone_number | String | 
+| flights | relationship |
+| verification_code | Integer |
+| verified | String |
+
+### Flight
+
+| Attribute | Type |
+| --------- | ----------- |
+| id | Integer |
+| airport | String |
+| flight_date | Integer |
+| departure_time | Integer | 
+| passenger_id | Integer |
+| match_id | Integer |
+
+### Match
+
+| Attribute | Type |
+| --------- | ----------- |
+| id | Integer |
+| airport | String |
+| ride_date | Integer |
+| ride_departureTime | Integer | 
+| flights | relationship |
+| available_seats | Integer |
+| riders | relationship |
