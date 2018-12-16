@@ -31,12 +31,21 @@ db = SQLAlchemy(app)
 
 from database import *
 
-# variable for uni integrity checking
+# airport options
 airports = ["JFK", "LGA", "EWR"]
 
 
 def notify_user(phone_number, unis):
+    """ Notifies user of their match results
+
+    Args:
+        phone_number (str): user's phone number
+        unis (list): list of UNIs user is matched to
+    """
+    # create twilio client 
     client = Client(os.getenv('TWILIO_KEY'), os.getenv('TWILIO_TOKEN'))
+
+    # send actual text message to user
     message = client.messages.create(
         to=phone_number,
         from_=os.getenv('SKYBOT_TWILIO_NUM'),
@@ -45,24 +54,34 @@ def notify_user(phone_number, unis):
 
 
 def send_matches(match_unis, match_nums):
-    """Handles returning matching unis to user
+    """ Handles returning matching unis to user
 
-    Returns: TwiML to send to user
+    Args:
+        match_unis (list): list of unis that are matched
+        match_nums (list): list of matched phone numbers
+
+    Returns: 
+        TwiML: Twilio formated to send text message
     """
     resp = MessagingResponse()
-    unis = ""
+    unis = "" # string to send match results
 
+    # when a user has no matches
     if len(match_unis) == 0:
         resp.message(
             """No matches for you right now, but we'll send you an update if there's a match!""",
         )
     else:
+        # iterates through UNIs list to create string for text message
         for x in range(0, len(match_unis)-2):
+            # appends to uni string for eventual message
             unis = unis + str(match_unis[x]) + " "
 
+        # iterates through list of matches and notifies the user of match
         for num in match_nums:
             notify_user(num, unis)
 
+        # texts text message to current user (we might not need this)
         reply = "Your matches are " + unis + ". Have a great day!"
         resp.message(reply)
 
@@ -70,11 +89,14 @@ def send_matches(match_unis, match_nums):
 
 
 def parse_date(date_entry):
-    """
-    Handles checking valid date entry
+    """ Handles checking valid date entry
 
-    Returns: Boolean if valid and date string for matching
-    if valid
+    Args:
+        date_entry (str): date entry from user's text message
+
+    Returns: 
+        bool: whether input is valid
+        str: date string for matching
     """
     cur_date = datetime.datetime.now()
     flt_date = str(date_entry)
@@ -101,11 +123,11 @@ def parse_date(date_entry):
 
 
 def parse_time(body):
-    """
-    Handles checking valid date entry
+    """ Checks checking whether date entry is valid
 
-    Returns: Boolean if valid and date string for matching
-    if valid
+    Returns: 
+        bool: whether input is valid
+        str: date string for matching
     """
     print("Body: " + str(body))
     time_ent = body
@@ -124,72 +146,85 @@ def parse_time(body):
 
 
 def parse_max(body):
-    """
-    Handles checking valid time entry
+    """ Handles checking valid time entry
+    
+    Args:
+        body (str): text message containing max number of passengers
 
-    Returns: Boolean if valid and time string for matching
-    if valid
+    Returns:
+        bool: whether max number is 1 or 2
+        int: number of user's max passengers
     """
-    max_entry = body
-
-    if re.search('[a-zA-Z]', max_entry) is not None:
+    if re.search('[a-zA-Z]', body) is not None:
         return False, ""
-    elif int(max_entry) > 2 or int(max_entry) < 1:
+    elif int(body) > 2 or int(body) < 1:
         return False, ""
     else:
-        return True, int(max_entry)
+        return True, int(body)
 
 
 def verify(pnumber, body):
     """ Handles initial info collection for flight
 
-    Returns: TwiML to send to user
+    Function is triggered whenever they send in a correct
+    verification code.
+
+    Args:
+        pnumber (str): current user's phone number
+        body (str): current user's text message
+    Returns: 
+        TwiML: Twilio text message to send to user
     """
-
-    # triggered when they send the correct verification code
     resp = MessagingResponse()
-
+    # filters database for current user entry
     row = db.session.query(User).filter(User.phone_number == pnumber).first()
 
+    # once a user is verified, send the text thanking & prompting for airport
     if str(row.verified) == "VERIFIED":
-        resp.message("""Thanks for verifying! Let's get started with your
-        flight information. Please enter the Airport
-        (1)JFK (2)LGA (3)EQR""")
+        resp.message("""Thanks for verifying! Let's get started with your flight information. Please enter the Airport: 
+            (1)JFK (2)LGA (3)EQR""")
 
-        row.verified = "AIRPORT_IN"
+        row.verified = "AIRPORT_IN" # switch to next state 
         db.session.commit()
+    # error checking for airport
     elif str(row.verified) == "AIRPORT_IN":
+        # tells user that they need to submit a number instead of letters
         if re.search('[a-zA-Z]', body) is not None:
-            resp.message("""No letters. Please enter 1 for JFK, 2 for
-                LGA or 3 for EWR""")
+            resp.message("""No letters. Please enter 1 for JFK, 2 for LGA or 3 for EWR""")
+        # tells user that they have the incorrect format
         elif int(body) < 1 or int(body) > 3:
-            resp.message("""Incorrect Format. Please enter 1 for JFK, 2 for
-                LGA or 3 for EWR""")
+            resp.message("""Incorrect Format. Please enter 1 for JFK, 2 for LGA or 3 for EWR""")
         else:
+            # once we have the airport, we prompt for the date info
             resp.message("""Please enter Date of Flight Departure in
                 following format MM-DD-YYYY""")
             cur_airport = str(airports[int(body) - 1])
+            # once the airport is input, we create an initial flight instance
             new_flight(cur_airport, row.id)
+            # switch to next state
             row.verified = "DATE_INFO"
             db.session.commit()
+            # add airport to user's flight db entry -- might not need this?
             flight = db.session.query(Flight).order_by(Flight.id.desc()).filter(Flight.passenger_id == row.id).first()
             flight.airport = cur_airport
             db.session.commit()
+    # once a user has input the airport, we retrieve the date
     elif str(row.verified) == "DATE_INFO":
         valid, str_date = parse_date(body)
+        # if the date format is correct
         if valid is True:
             cur_fltDate = int(str_date)
             
-            resp.message("""Please enter flight time in following Military
-                time format HHMMSS""")
-            row.verified = "FLIGHT_TIM"
+            resp.message("""Please enter flight time in following Military time format HHMMSS""")
+            row.verified = "FLIGHT_TIM" # update to next state
             db.session.commit()
+            # update the flight db entry 
             flight = db.session.query(Flight).order_by(Flight.id.desc()).filter(Flight.passenger_id == row.id).first()
             flight.flight_date = int(cur_fltDate)
             db.session.commit()
         else:
-            resp.message("""Incorrect Format. Please enter in following format
-                MM-DD-YYYY""")
+            # if incorrect format, let them know
+            resp.message("""Incorrect Format. Please enter in following format MM-DD-YYYY""")
     elif str(row.verified) == "FLIGHT_TIM":
         valid, str_time = parse_time(body)
         if valid is True:
