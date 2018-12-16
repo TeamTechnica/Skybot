@@ -19,6 +19,7 @@ from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 
 from cost import *
+from database import *
 
 
 app = Flask(__name__)
@@ -28,8 +29,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://ehepwtnqjcfntn:04461d661ce43b16602000fb490e32ece1f3558bddac8f4c6059886544f7c7cd@ec2-107-21-125-209.compute-1.amazonaws.com:5432/d6uqqsindhtp99'
 
 db = SQLAlchemy(app)
-
-from database import *
 
 # airport options
 airports = ["JFK", "LGA", "EWR"]
@@ -42,7 +41,7 @@ def notify_user(phone_number, unis):
         phone_number (str): user's phone number
         unis (list): list of UNIs user is matched to
     """
-    # create twilio client 
+    # create twilio client
     client = Client(os.getenv('TWILIO_KEY'), os.getenv('TWILIO_TOKEN'))
 
     # send actual text message to user
@@ -60,11 +59,11 @@ def send_matches(match_unis, match_nums):
         match_unis (list): list of unis that are matched
         match_nums (list): list of matched phone numbers
 
-    Returns: 
+    Returns:
         TwiML: Twilio formated to send text message
     """
     resp = MessagingResponse()
-    unis = "" # string to send match results
+    unis = ""  # string to send match results
 
     # when a user has no matches
     if len(match_unis) == 0:
@@ -94,7 +93,7 @@ def parse_date(date_entry):
     Args:
         date_entry (str): date entry from user's text message
 
-    Returns: 
+    Returns:
         bool: whether input is valid
         str: date string for matching
     """
@@ -125,7 +124,7 @@ def parse_date(date_entry):
 def parse_time(body):
     """ Checks checking whether date entry is valid
 
-    Returns: 
+    Returns:
         bool: whether input is valid
         str: date string for matching
     """
@@ -136,7 +135,7 @@ def parse_time(body):
     elif(
         len(time_ent) != 6 or
         int(time_ent[0:2].lstrip("0")) > 24 or int(time_ent[0:2].lstrip("0")) < 1 or
-        int(time_ent[2:4].lstrip("0")) < 1 or int(time_ent[2:4].lstrip("0")) > 60 or 
+        int(time_ent[2:4].lstrip("0")) < 1 or int(time_ent[2:4].lstrip("0")) > 60 or
         int(time_ent[4:6].lstrip("0")) < 1 or
         int(time_ent[4:6].lstrip("0")) > 60
     ):
@@ -181,8 +180,7 @@ def verify(pnumber, body):
 
     # once a user is verified, send the text thanking & prompting for airport
     if str(row.verified) == "VERIFIED":
-        resp.message("""Thanks for verifying! Let's get started with your flight information. Please enter the Airport: 
-            (1)JFK (2)LGA (3)EQR""")
+        resp.message("""Thanks for verifying! Let's get started with your flight information. Please enter the Airport: (1)JFK (2)LGA (3)EQR""")
 
         row.verified = "AIRPORT_IN" # switch to next state 
         db.session.commit()
@@ -442,7 +440,7 @@ def check_uni(body):
     Args:
         body (str): user's text message
     
-    Returns: 
+    Returns:
         bool: whether UNI is valid or not
     """
     valid_uni = True
@@ -487,7 +485,7 @@ def matchFound(cur_user, flight, cur_max):
     Args:
         cur_user (User): current user row
         flight (Flight): current user's flight row
-        cur_max (int): number of max passengers 
+        cur_max (int): number of max passengers
         
     Returns: 
         match_unis (list): UNIs for each matched user
