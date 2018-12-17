@@ -69,7 +69,7 @@ def get_cost(location, num_passengers):
     return cost
 
 
-def notify_user(phone_number, unis, cost):
+def notify_user(phone_number, unis):
     """ Notifies user of their match results
 
     Args:
@@ -83,11 +83,11 @@ def notify_user(phone_number, unis, cost):
     message = client.messages.create(
         to=phone_number,
         from_=os.getenv('SKYBOT_TWILIO_NUM'),
-        body="your matches are " + unis + " with an estimated cost of " + cost,
+        body="your matches are " + unis + " with an estimated cost of ",
     )
 
 
-def send_matches(match_unis, match_nums, airport):
+def send_matches(match_unis, match_nums):
     """ Handles returning matching unis to user
 
     Args:
@@ -116,7 +116,7 @@ def send_matches(match_unis, match_nums, airport):
             notify_user(num, unis, cost)
 
         # retrieve cost of ride
-        cost = get_cost(str(airport), len(match_nums))
+        #cost = get_cost(str(airport), len(match_nums))
         # texts text message to current user (we might not need this)
         reply = "Your matches are " + unis + ". Have a great day!"
         resp.message(reply)
