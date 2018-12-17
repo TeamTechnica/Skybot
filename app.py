@@ -87,7 +87,7 @@ def notify_user(phone_number, unis):
     )
 
 
-def send_matches(match_unis, match_nums):
+def send_matches(match_unis, match_nums, flight):
     """ Handles returning matching unis to user
 
     Args:
@@ -116,6 +116,7 @@ def send_matches(match_unis, match_nums):
             notify_user(num, unis)
 
         # retrieve cost of ride
+        print(flight.airport)
         #cost = get_cost(str(airport), len(match_nums))
         # texts text message to current user (we might not need this)
         reply = "Your matches are " + unis + ". Have a great day!"
@@ -285,7 +286,7 @@ def verify(pnumber, body):
         if valid is True:
             cur_max = int_max
             matches, match_nums = matchFound(row, flight, cur_max)
-            resp = send_matches(matches, match_nums)
+            resp = send_matches(matches, match_nums, flight)
         else:
             resp.message(
                 """Error, you can only enter between 1-2 passengers""",
