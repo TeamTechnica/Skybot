@@ -19,8 +19,6 @@ from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 
 from cost import *
-from database import *
-
 
 app = Flask(__name__)
 app.config.from_object(['APP_SETTINGS'])
@@ -29,6 +27,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://ehepwtnqjcfntn:04461d661ce43b16602000fb490e32ece1f3558bddac8f4c6059886544f7c7cd@ec2-107-21-125-209.compute-1.amazonaws.com:5432/d6uqqsindhtp99'
 
 db = SQLAlchemy(app)
+
+from database import *
 
 # airport options
 airports = ["JFK", "LGA", "EWR"]
