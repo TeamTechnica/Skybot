@@ -18,8 +18,7 @@ from sqlalchemy.orm import sessionmaker
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 
-from cost import *
-
+#from cost import *
 
 app = Flask(__name__)
 app.config.from_object(['APP_SETTINGS'])
@@ -34,6 +33,41 @@ from database import *
 # airport options
 airports = ["JFK", "LGA", "EWR"]
 
+def get_cost(location, num_passengers):
+    """ Provides Skybot with Lyft cost from Columbia to needed airport
+
+    Args:
+        location (str): JFK, LGA, or EWR
+        num_passengers (int): number of passengers
+
+    Return:
+        cost (str): cost of the lyft ride
+    """
+    # Gets the cost of a Lyft from Columbia to JFK Airport
+    jfk = requests.get('https://api.lyft.com/v1/cost?start_lat=40.8075&start_lng=-73.9626&end_lat=40.6413&end_lng=-73.7781')
+    jfk_json = json.loads(jfk.text)
+
+    # Gets the cost of a Lyft from Columbia to La Guardia Airport (LGA)
+    lga = requests.get('https://api.lyft.com/v1/cost?start_lat=40.8075&start_lng=-73.9626&end_lat=40.7769&end_lng=-73.8740')
+    lga_json = json.loads(lga.text)
+
+    # Gets cost of a Lyft from Columbia to Newark International Airport (EWR)
+    ewr = requests.get('https://api.lyft.com/v1/cost?start_lat=40.8075&start_lng=-73.9626&end_lat=40.6895&end_lng=-74.1745')
+    ewr_json = json.loads(ewr.text)
+
+    # Returns the cost of the ride based on the passed airport location
+    if location.upper() == "JFK":
+        jfk_cost = '%.2f' % ((jfk_json['cost_estimates'][1]['estimated_cost_cents_max']/100) / num_passengers)
+        cost = '$'+str(jfk_cost)
+    if location.upper() == "LGA":
+        lga_cost = '%.2f' % ((lga_json['cost_estimates'][1]['estimated_cost_cents_max']/100) / num_passengers)
+        cost = '$'+str(lga_cost)
+    if location.upper() == "EWR":
+        ewr_cost = '%.2f' % ((ewr_json['cost_estimates'][1]['estimated_cost_cents_max']/100) / num_passengers)
+        cost = '$'+str(ewr_cost)
+
+    return cost
+
 
 def notify_user(phone_number, unis):
     """ Notifies user of their match results
@@ -42,14 +76,14 @@ def notify_user(phone_number, unis):
         phone_number (str): user's phone number
         unis (list): list of UNIs user is matched to
     """
-    # create twilio client 
+    # create twilio client
     client = Client(os.getenv('TWILIO_KEY'), os.getenv('TWILIO_TOKEN'))
 
     # send actual text message to user
     message = client.messages.create(
         to=phone_number,
         from_=os.getenv('SKYBOT_TWILIO_NUM'),
-        body="your matches are " + unis + ". Have a great day!",
+        body="your matches are " + unis + " with an estimated cost of ",
     )
 
 
@@ -60,11 +94,11 @@ def send_matches(match_unis, match_nums):
         match_unis (list): list of unis that are matched
         match_nums (list): list of matched phone numbers
 
-    Returns: 
+    Returns:
         TwiML: Twilio formated to send text message
     """
     resp = MessagingResponse()
-    unis = "" # string to send match results
+    unis = ""  # string to send match results
 
     # when a user has no matches
     if len(match_unis) == 0:
@@ -81,6 +115,8 @@ def send_matches(match_unis, match_nums):
         for num in match_nums:
             notify_user(num, unis)
 
+        # retrieve cost of ride
+        #cost = get_cost(str(airport), len(match_nums))
         # texts text message to current user (we might not need this)
         reply = "Your matches are " + unis + ". Have a great day!"
         resp.message(reply)
@@ -94,7 +130,7 @@ def parse_date(date_entry):
     Args:
         date_entry (str): date entry from user's text message
 
-    Returns: 
+    Returns:
         bool: whether input is valid
         str: date string for matching
     """
@@ -125,7 +161,7 @@ def parse_date(date_entry):
 def parse_time(body):
     """ Checks checking whether date entry is valid
 
-    Returns: 
+    Returns:
         bool: whether input is valid
         str: date string for matching
     """
@@ -136,7 +172,7 @@ def parse_time(body):
     elif(
         len(time_ent) != 6 or
         int(time_ent[0:2].lstrip("0")) > 24 or int(time_ent[0:2].lstrip("0")) < 1 or
-        int(time_ent[2:4].lstrip("0")) < 1 or int(time_ent[2:4].lstrip("0")) > 60 or 
+        int(time_ent[2:4].lstrip("0")) < 1 or int(time_ent[2:4].lstrip("0")) > 60 or
         int(time_ent[4:6].lstrip("0")) < 1 or
         int(time_ent[4:6].lstrip("0")) > 60
     ):
@@ -147,7 +183,7 @@ def parse_time(body):
 
 def parse_max(body):
     """ Handles checking valid time entry
-    
+
     Args:
         body (str): text message containing max number of passengers
 
@@ -172,7 +208,7 @@ def verify(pnumber, body):
     Args:
         pnumber (str): current user's phone number
         body (str): current user's text message
-    Returns: 
+    Returns:
         TwiML: Twilio text message to send to user
     """
     resp = MessagingResponse()
@@ -181,10 +217,9 @@ def verify(pnumber, body):
 
     # once a user is verified, send the text thanking & prompting for airport
     if str(row.verified) == "VERIFIED":
-        resp.message("""Thanks for verifying! Let's get started with your flight information. Please enter the Airport: 
-            (1)JFK (2)LGA (3)EQR""")
+        resp.message("""Thanks for verifying! Let's get started with your flight information. Please enter the Airport: (1)JFK (2)LGA (3)EWR""")
 
-        row.verified = "AIRPORT_IN" # switch to next state 
+        row.verified = "AIRPORT_IN"  # switch to next state
         db.session.commit()
     # error checking for airport
     elif str(row.verified) == "AIRPORT_IN":
@@ -214,11 +249,11 @@ def verify(pnumber, body):
         # if the date format is correct
         if valid is True:
             cur_fltDate = int(str_date)
-            
+
             resp.message("""Please enter flight time in following Military time format HHMMSS""")
-            row.verified = "FLIGHT_TIM" # update to next state
+            row.verified = "FLIGHT_TIM"  # update to next state
             db.session.commit()
-            # update the flight db entry 
+            # update the flight db entry
             flight = db.session.query(Flight).order_by(Flight.id.desc()).filter(Flight.passenger_id == row.id).first()
             flight.flight_date = int(cur_fltDate)
             db.session.commit()
@@ -230,9 +265,9 @@ def verify(pnumber, body):
         if valid is True:
             resp.message("""Last thing, please enter the max number of
             passengers you're willing to ride with as a number. Ex. 2""")
-            
+
             cur_fltTime = int(str_time)
-            
+
             row.verified = "FINISHED"
             db.session.commit()
             flight = db.session.query(Flight).order_by(Flight.id.desc()).filter(Flight.passenger_id == row.id).first()
@@ -243,7 +278,7 @@ def verify(pnumber, body):
                 """Incorrect Format. Please enter in milliary format HHMMSS""",
             )
     elif str(row.verified) == "FINISHED":
-        valid, int_max = parse_max(body) 
+        valid, int_max = parse_max(body)
 
         flight = db.session.query(Flight).order_by(Flight.id.desc()).filter(Flight.passenger_id == row.id).first()
 
@@ -265,7 +300,7 @@ def send_verify_email(uni, email, pnumber):
     Keyword arguments:
     email -- user's email address
 
-    Returns: 
+    Returns:
         TwiML: text message to send to user
     """
     if check_uni(uni) is True:
@@ -307,19 +342,19 @@ def send_verify_email(uni, email, pnumber):
 def reverify_uni():
     """ Handles the case when wrong verification_code given
 
-    Returns: 
+    Returns:
         TwiML: text message to send to user
     """
     resp = MessagingResponse()
     resp.message(
-        """Sorry the verification_code does not match. Please enter your uni again""",
+        "The verification code does not match. Please enter your UNI again",
     )
     return str(resp)
 
 
 def error(message):
     """ Sends error text message
-    
+
     Args:
         message (str): error type to send as a text
     Returns:
@@ -330,6 +365,7 @@ def error(message):
     error_message = "Error: " + str(message)
     resp.message(error_message)
     return str(resp)
+
 
 def check_valid_code(pnumber, body):
     """ Handles checking valid code
@@ -391,7 +427,7 @@ def exist_user(phone_number, body):
     else:
         # error condition if all else feels
         message = error("Something unexpected happened, please try later")
-    
+
     return message
 
 
@@ -441,8 +477,8 @@ def check_uni(body):
 
     Args:
         body (str): user's text message
-    
-    Returns: 
+
+    Returns:
         bool: whether UNI is valid or not
     """
     valid_uni = True
@@ -487,9 +523,9 @@ def matchFound(cur_user, flight, cur_max):
     Args:
         cur_user (User): current user row
         flight (Flight): current user's flight row
-        cur_max (int): number of max passengers 
-        
-    Returns: 
+        cur_max (int): number of max passengers
+
+    Returns:
         match_unis (list): UNIs for each matched user
         match_nums (list): phone numbers for each matched user
     """
@@ -545,8 +581,6 @@ def matchFound(cur_user, flight, cur_max):
 
     # Otherwise
     else:
-
-
         # If the user was matched to a flight that was not previously matched
         if matched_flight.match_id == None:
 
