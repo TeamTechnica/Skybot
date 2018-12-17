@@ -4,6 +4,8 @@ import random
 import re
 import unittest
 from datetime import datetime
+import requests
+import json
 
 import sendgrid
 import sqlalchemy
@@ -18,8 +20,6 @@ from sqlalchemy.orm import sessionmaker
 from twilio.rest import Client
 from twilio.twiml.messaging_response import MessagingResponse
 
-#from cost import *
-
 app = Flask(__name__)
 app.config.from_object(['APP_SETTINGS'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -32,6 +32,7 @@ from database import *
 
 # airport options
 airports = ["JFK", "LGA", "EWR"]
+
 
 def get_cost(location, num_passengers):
     """ Provides Skybot with Lyft cost from Columbia to needed airport
@@ -69,7 +70,7 @@ def get_cost(location, num_passengers):
     return cost
 
 
-def notify_user(phone_number, unis):
+def notify_user(phone_number, unis, cost):
     """ Notifies user of their match results
 
     Args:
@@ -83,7 +84,7 @@ def notify_user(phone_number, unis):
     message = client.messages.create(
         to=phone_number,
         from_=os.getenv('SKYBOT_TWILIO_NUM'),
-        body="your matches are " + unis + " with an estimated cost of ",
+        body="Your matches are " + unis + " with an estimated cost of " + cost
     )
 
 
@@ -110,15 +111,15 @@ def send_matches(match_unis, match_nums):
         for x in range(0, len(match_unis)-2):
             # appends to uni string for eventual message
             unis = unis + str(match_unis[x]) + " "
+        # retrieve cost of ride
+        cost = get_cost(match_unis[-1], len(match_nums))
 
         # iterates through list of matches and notifies the user of match
-        for num in match_nums[1:]:
-            notify_user(num, unis)
+        for num in match_nums[:-1]:
+            notify_user(num, unis, cost)
 
-        # retrieve cost of ride
-        #cost = get_cost(str(airport), len(match_nums))
         # texts text message to current user (we might not need this)
-        reply = "Your matches are " + unis + ". Have a great day!"
+        reply = "Your matches are " + unis + " with an estimated cost of " + cost
         resp.message(reply)
 
     return resp
