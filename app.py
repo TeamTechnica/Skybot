@@ -112,7 +112,7 @@ def send_matches(match_unis, match_nums):
             unis = unis + str(match_unis[x]) + " "
 
         # iterates through list of matches and notifies the user of match
-        for num in match_nums:
+        for num in match_nums[1:]:
             notify_user(num, unis)
 
         # retrieve cost of ride
