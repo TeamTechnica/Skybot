@@ -33,6 +33,7 @@ from database import *
 # airport options
 airports = ["JFK", "LGA", "EWR"]
 
+
 def get_cost(location, num_passengers):
     """ Provides Skybot with Lyft cost from Columbia to needed airport
 
@@ -83,7 +84,7 @@ def notify_user(phone_number, unis, cost):
     message = client.messages.create(
         to=phone_number,
         from_=os.getenv('SKYBOT_TWILIO_NUM'),
-        body="Your matches are" + unis + " with an estimated cost of " + cost
+        body="Your matches are " + unis + " with an estimated cost of " + cost
     )
 
 
@@ -118,7 +119,7 @@ def send_matches(match_unis, match_nums):
             notify_user(num, unis, cost)
 
         # texts text message to current user (we might not need this)
-        reply = "Your matches are" + unis + " with an estimated cost of " + cost
+        reply = "Your matches are " + unis + " with an estimated cost of " + cost
         resp.message(reply)
 
     return resp
