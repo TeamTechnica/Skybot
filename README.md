@@ -83,6 +83,11 @@ def sms_reply():
     body = request.values.get('From', None)
 ```
 
+## Code Coverage
+
+For more detailed reporting on code coverage, go to https://codecov.io/gh/TeamTechnica/Skybot.
+
+The coverage for app.py is significantly low because we did not unit test the functionality of  third party APIs or library included in the project (Twilio, Sendgrid, and Lyft) nor subject them to our coverage. However, they were tested in our integration tests. 
 
 ## Matching Algorithm
 
